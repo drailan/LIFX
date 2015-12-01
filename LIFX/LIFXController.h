@@ -79,11 +79,7 @@ namespace LIFX
 		SOCKET out_socket;
 		SOCKET in_socket;
 		WSADATA wsaData;
-
-		int count;
-		char* site_address = "4c:49:46:58:56:32";
 		sockaddr_in addr;
-
 		std::vector<lifx_bulb> bulbs;
 	};
 }

@@ -5,13 +5,13 @@ namespace LIFXSeeSharp
 {
 	public class LifxBulb
 	{
-		public string Label { get; }
+		public string Label { get; set; }
 		public float Hue { get; set;  }
 		public float Saturation { get; set;  }
 		public float Brightness { get; set; }
-		public uint Kelvin { get; set; }
-		public uint Dim { get; set; }
-		public uint Power { get; set;  }
+		public ushort Kelvin { get; set; }
+		public ushort Dim { get; set; }
+		public ushort Power { get; set;  }
 
 
 		public LifxBulb(string label = "")

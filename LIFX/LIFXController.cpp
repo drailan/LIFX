@@ -17,7 +17,6 @@ namespace LIFX
 	LIFXController::LIFXController()
 	{
 		setlocale(LC_CTYPE, "");
-		count = 4;
 		bulbs = vector<lifx_bulb>();
 		init_network();
 
@@ -141,13 +140,6 @@ namespace LIFX
 				packet->site[4] = uint8_t((mac >> 8) & 0xFF);
 				packet->site[5] = uint8_t((mac)& 0xFF);
 
-				//packet->target[0] = static_cast<uint8_t>((bulb.mac >> 40) & 0xFF);
-				//packet->target[1] = static_cast<uint8_t>((bulb.mac >> 32) & 0xFF);
-				//packet->target[2] = static_cast<uint8_t>((bulb.mac >> 24) & 0xFF);
-				//packet->target[3] = static_cast<uint8_t>((bulb.mac >> 16) & 0xFF);
-				//packet->target[4] = static_cast<uint8_t>((bulb.mac >> 8) & 0xFF);
-				//packet->target[5] = static_cast<uint8_t>((bulb.mac) & 0xFF);
-
 				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 				addr.sin_addr.s_addr = inet_addr(bulb.ip);
 
@@ -189,12 +181,13 @@ namespace LIFX
 				return state;
 			}
 		}
+
+		return light_state();
 	}
 
 	void LIFXController::init_network()
 	{
 		WSAStartup(MAKEWORD(2, 2), &wsaData);
-
 		bcast_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 		char opt = 1;
 		setsockopt(bcast_socket, SOL_SOCKET, SO_BROADCAST, static_cast<char*>(&opt), sizeof(char));
@@ -219,16 +212,21 @@ namespace LIFX
 		int iResult;
 		addr.sin_addr.s_addr = INADDR_BROADCAST;
 
-		lifx_header* packet = new lifx_header();
+		out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		in_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		bcast_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		char opt = 1;
+		setsockopt(bcast_socket, SOL_SOCKET, SO_BROADCAST, static_cast<char*>(&opt), sizeof(char));
+
+		auto packet = new lifx_header();
 		memset(packet, 0, sizeof(lifx_header));
 		packet->size = sizeof(lifx_header);
 		packet->type = 2;
 		packet->protocol = _byteswap_ushort(0x34);
 
 		iResult = sendto(bcast_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
-		iResult = closesocket(bcast_socket);
 
-		int recvbuflen = 512;
+		auto recvbuflen = 512;
 		char recvbuf[NUM_LAMPS][512];
 
 		addr.sin_addr.s_addr = INADDR_ANY;
@@ -248,10 +246,12 @@ namespace LIFX
 				printf("Connection closed\n");
 			} else {
 				printf("recv failed: %d\n", WSAGetLastError());
+				return;
 			}
 		} while (iResult > 0);
 
 		closesocket(in_socket);
+		closesocket(bcast_socket);
 
 		auto temp = recvbuf[0];
 		char site_address[18];
