@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "LIFXController.h"
 
 #include <stdlib.h>
@@ -52,7 +56,8 @@ namespace LIFX
 				packet->site[5] = static_cast<uint8_t>((controller_mac)& 0xFF);
 
 				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				addr.sin_addr.s_addr = inet_addr(bulb.ip);
+				//addr.sin_addr.s_addr = inet_addr(bulb.ip);
+				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
 				char buf[42];
 				ZeroMemory(buf, sizeof(buf));
@@ -93,7 +98,8 @@ namespace LIFX
 				packet->site[5] = static_cast<uint8_t>((controller_mac)& 0xFF);
 
 				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				addr.sin_addr.s_addr = inet_addr(bulb.ip);
+				//addr.sin_addr.s_addr = inet_addr(bulb.ip);
+				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
 				char buf[49];
 				ZeroMemory(buf, sizeof(buf));
@@ -141,7 +147,8 @@ namespace LIFX
 				packet->site[5] = uint8_t((mac)& 0xFF);
 
 				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				addr.sin_addr.s_addr = inet_addr(bulb.ip);
+				//addr.sin_addr.s_addr = inet_addr(bulb.ip);
+				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
 				iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
 
@@ -273,7 +280,8 @@ namespace LIFX
 
 		for (i = 0; i < NUM_LAMPS; ++i) {
 			bulbs.push_back(lifx_bulb());
-			strcpy(bulbs[i].ip, inet_ntoa(from[i].sin_addr));
+			//strcpy(bulbs[i].ip, inet_ntoa(from[i].sin_addr));
+			inet_ntop(AF_INET, &from[i].sin_addr, bulbs[i].ip, INET_ADDRSTRLEN);
 			bulbs[i].mac = get_mac(bulbs[i].ip);
 			bulbs[i].site_address = site_address_proper;
 			wcscpy(bulbs[i].label, get_label(bulbs[i]).c_str());
@@ -299,7 +307,8 @@ namespace LIFX
 		packet->site[5] = uint8_t((mac)& 0xFF);
 
 		out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		addr.sin_addr.s_addr = inet_addr(target.ip);
+		//addr.sin_addr.s_addr = inet_addr(target.ip);
+		inet_pton(AF_INET, target.ip, &(addr.sin_addr.s_addr));
 
 		iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
 
@@ -339,7 +348,10 @@ namespace LIFX
 
 	uint32_t LIFXController::InvertAndConvertHexBufToUint(char buf[2])
 	{
-		unsigned char data[2] = { buf[1], buf[0] };
+		unsigned char data[2] = {
+			static_cast<unsigned char>(buf[1]),
+			static_cast<unsigned char>(buf[0]) 
+		};
 		char hex[5];
 
 		sprintf(&hex[0], "%2x", data[0]);
@@ -374,13 +386,15 @@ namespace LIFX
 			&last);
 		if (rc != 6 || strlen(s) != last)
 			return -1;
-		return
-			uint64_t(a[0]) << 40 |
-			uint64_t(a[1]) << 32 |
-			uint64_t(a[2]) << 24 |
-			uint64_t(a[3]) << 16 |
-			uint64_t(a[4]) << 8 |
-			uint64_t(a[5]);
+
+		auto mac =	uint64_t(a[0]) << 40 |
+					uint64_t(a[1]) << 32 |
+					uint64_t(a[2]) << 24 |
+					uint64_t(a[3]) << 16 |
+					uint64_t(a[4]) << 8 |
+					uint64_t(a[5]);
+
+		return mac;
 	}
 
 	uint64_t LIFXController::get_mac(char* ip)
@@ -392,13 +406,16 @@ namespace LIFX
 		BYTE *address;
 		char mac_string[50] = "";
 		char temp_mac[6];
-		auto dest = inet_addr(ip);
+		//auto dest = inet_addr(ip);
+		unsigned long dest;
+		inet_pton(AF_INET, ip, &dest);
+
 
 		ZeroMemory(&mac, sizeof(mac));
 		dRet = SendARP(dest, src, &mac, &len);
 		address = reinterpret_cast<BYTE *>(&mac);
 
-		for (auto i = 0; i < len; i++) {
+		for (unsigned int i = 0; i < len; i++) {
 			if (i == (len - 1)) {
 				sprintf(temp_mac, "%.2X", int(address[i]));
 			} else {

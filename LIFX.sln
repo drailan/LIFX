@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LIFX", "LIFX\LIFX.vcxproj", "{A3CF7A08-DC1F-44B1-BD39-3630D5973A35}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LIFXSeeSharp", "LIFXSeeSharp\LIFXSeeSharp.csproj", "{22E53BB8-6CFF-4285-82B4-6C5DEF2B55B6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A3CF7A08-DC1F-44B1-BD39-3630D5973A35} = {A3CF7A08-DC1F-44B1-BD39-3630D5973A35}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LIFXGui", "LIFXGui\LIFXGui.csproj", "{C2E57BFD-151A-408B-8A99-5134752A2CC8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{22E53BB8-6CFF-4285-82B4-6C5DEF2B55B6} = {22E53BB8-6CFF-4285-82B4-6C5DEF2B55B6}
 	EndProjectSection
 EndProject
 Global
@@ -42,6 +47,18 @@ Global
 		{22E53BB8-6CFF-4285-82B4-6C5DEF2B55B6}.Release|x64.Build.0 = Release|Any CPU
 		{22E53BB8-6CFF-4285-82B4-6C5DEF2B55B6}.Release|x86.ActiveCfg = Release|Any CPU
 		{22E53BB8-6CFF-4285-82B4-6C5DEF2B55B6}.Release|x86.Build.0 = Release|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Debug|x64.Build.0 = Debug|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Debug|x86.Build.0 = Debug|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Release|x64.ActiveCfg = Release|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Release|x64.Build.0 = Release|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Release|x86.ActiveCfg = Release|Any CPU
+		{C2E57BFD-151A-408B-8A99-5134752A2CC8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,20 +1,119 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Text;
 
 namespace LIFXSeeSharp
 {
-	public class LifxBulb
+	public class LifxBulb : INotifyPropertyChanged
 	{
-		public string Label { get; set; }
-		public float Hue { get; set;  }
-		public float Saturation { get; set;  }
-		public float Brightness { get; set; }
-		public ushort Kelvin { get; set; }
-		public ushort Dim { get; set; }
-		public ushort Power { get; set;  }
+        private string _label;
+        private float _hue;
+        private float _saturation;        
+        private float _brightness;
+        private ushort _kelvin;
+        private ushort _dim;
+        private ushort _power;
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void NotifyPropertyChanged(string propertyName)
+        {
+            var h = PropertyChanged;
+            if (h != null)
+            {
+                h(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
-		public LifxBulb(string label = "")
+        public string Label
+        {
+            get { return _label; }
+            set
+            {
+                if (_label != value)
+                {
+                    _label = value;
+                    NotifyPropertyChanged("Label");
+                }
+            }
+        }
+
+        public float Hue
+        {
+            get { return _hue; }
+            set
+            {
+                if (_hue != value)
+                {
+                    _hue = value;
+                    NotifyPropertyChanged("Hue");
+                }
+            }
+        }
+
+        public float Saturation
+        {
+            get { return _saturation; }
+            set
+            {
+                if (_saturation != value)
+                {
+                    _saturation = value;
+                    NotifyPropertyChanged("Saturation");
+                }
+            }
+        }
+        public float Brightness
+        {
+            get { return _brightness; }
+            set
+            {
+                if (_brightness != value)
+                {
+                    _brightness = value;
+                    NotifyPropertyChanged("Brightness");
+                }
+            }
+        }
+
+        public ushort Kelvin
+        {
+            get { return _kelvin; }
+            set
+            {
+                if (_kelvin != value)
+                {
+                    _kelvin = value;
+                    NotifyPropertyChanged("Kelvin");
+                }
+            }
+        }
+
+        public ushort Dim
+        {
+            get { return _dim; }
+            set
+            {
+                if (_dim != value)
+                {
+                    _dim = value;
+                    NotifyPropertyChanged("Dim");
+                }
+            }
+        }
+        public ushort Power
+        {
+            get { return _power; }
+            set
+            {
+                if (_power != value)
+                {
+                    _power = value;
+                    NotifyPropertyChanged("Power");
+                }
+            }
+        }
+
+        public LifxBulb(string label = "")
 		{
 			Label = label;
 		}
@@ -26,5 +125,21 @@ namespace LIFXSeeSharp
 				Label, Hue, Saturation, Brightness, Kelvin, Dim, Power);
 			return sb.ToString();
 		}
-	}
+
+        public override bool Equals(object obj)
+        {
+            var bulb = obj as LifxBulb;
+            if (bulb != null)
+            {
+                return Label == bulb.Label;
+            }
+
+            return false;            
+        }
+
+        public override int GetHashCode()
+        {
+            return Label.GetHashCode();
+        }
+    }
 }

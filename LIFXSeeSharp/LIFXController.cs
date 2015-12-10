@@ -4,6 +4,13 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
+// Hue => 0,360
+// Saturation => %
+// Brightness => %
+// Kelvin => 2500,9000
+// Dim => ms
+// Power => 0 & 65535
+
 namespace LIFXSeeSharp
 {
 	public class LifxController
@@ -25,14 +32,12 @@ namespace LIFXSeeSharp
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool GetLightState(string label, [Out] IntPtr[] state);
 
-		private List<LifxBulb> Bulbs { get; set; }
+		public List<LifxBulb> Bulbs { get; set; }
 
 		public LifxController()
-		{
-			
-		}
+        { }
 
-		public void RunInitialDiscovery()
+		public async Task RunInitialDiscovery()
 		{
 			Discover();
 
@@ -48,29 +53,7 @@ namespace LIFXSeeSharp
 			}
 		}
 
-		public void GetAllLightStates()
-		{
-			Bulbs.ForEach(b =>
-			{
-				var state = new IntPtr[6];
-				GetLightState(b.Label, state);
-
-				// Hue => 0,360
-				// Saturation => %
-				// Brightness => %
-				// Kelvin => 2500,9000
-				// Dim => ms
-				// Power => 0 & 65535
-				b.Hue = (float)state[0] * 360 / ushort.MaxValue;
-				b.Saturation = (float)state[1] / ushort.MaxValue;
-				b.Brightness = (float)state[2] / ushort.MaxValue;
-				b.Kelvin = (ushort)state[3];
-				b.Dim = (ushort)state[4];
-				b.Power = (ushort)state[5];
-			});
-		}
-
-		public void GetLightState(string label = null)
+		public async Task GetLightState(string label = null)
 		{
 			if (label != null)
 			{
@@ -81,12 +64,6 @@ namespace LIFXSeeSharp
 						var state = new IntPtr[6];
 						GetLightState(b.Label, state);
 
-						// Hue => 0,360
-						// Saturation => %
-						// Brightness => %
-						// Kelvin => 2500,9000
-						// Dim => ms
-						// Power => 0 & 65535
 						b.Hue = (float)state[0] * 360 / ushort.MaxValue;
 						b.Saturation = (float)state[1] / ushort.MaxValue;
 						b.Brightness = (float)state[2] / ushort.MaxValue;
@@ -102,12 +79,6 @@ namespace LIFXSeeSharp
 							var state = new IntPtr[6];
 							GetLightState(b.Label, state);
 
-							// Hue => 0,360
-							// Saturation => %
-							// Brightness => %
-							// Kelvin => 2500,9000
-							// Dim => ms
-							// Power => 0 & 65535
 							b.Hue = (float)state[0] * 360 / ushort.MaxValue;
 							b.Saturation = (float)state[1] / ushort.MaxValue;
 							b.Brightness = (float)state[2] / ushort.MaxValue;
@@ -118,7 +89,7 @@ namespace LIFXSeeSharp
 			}
 		}
 
-		public void SetLightState(float hue, float saturation, float brightness, ushort kelvin, ushort dim, string target = null)
+		public async Task SetLightState(float hue, float saturation, float brightness, ushort kelvin, ushort dim, string target = null)
 		{
 			if (kelvin > 9000 || kelvin < 2500) {
 				throw new ArgumentOutOfRangeException(nameof(kelvin),
@@ -140,35 +111,27 @@ namespace LIFXSeeSharp
 
 			if (target != null)
 			{
-				Bulbs.Where(b => b.Label == target).ToList().ForEach(b =>
-				{
-					SetLightColor(b.Label, state);
-				});
+				Bulbs.Where(b => b.Label == target)
+                     .ToList()
+                     .ForEach(b => SetLightColor(b.Label, state));
 			}
 			else
 			{
-				Bulbs.ForEach(b =>
-				{
-					SetLightColor(b.Label, state);
-				});	
+				Bulbs.ForEach(b => SetLightColor(b.Label, state));
 			}
 		}
 
-		public void SetPower(ushort onoff, string target = null)
+		public async Task SetPower(ushort onoff, string target = null)
 		{
 			if (target != null)
 			{
-				Bulbs.Where(b => b.Label == target).ToList().ForEach(b =>
-				{
-					SetPower(b.Label, onoff);
-				});
+				Bulbs.Where(b => b.Label == target)
+                      .ToList()
+                      .ForEach(b => SetPower(b.Label, onoff));
 			}
 			else
 			{
-				Bulbs.ForEach(b =>
-				{
-					SetPower(b.Label, onoff);
-				});
+				Bulbs.ForEach(b => SetPower(b.Label, onoff));
 			}
 		}
 	}
