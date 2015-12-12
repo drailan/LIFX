@@ -6,6 +6,7 @@ namespace LIFXSeeSharp
 {
 	public class LifxBulb : INotifyPropertyChanged
 	{
+        private string _group;
         private string _label;
         private float _hue;
         private float _saturation;        
@@ -21,6 +22,19 @@ namespace LIFXSeeSharp
             if (h != null)
             {
                 h(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        public string Group
+        {
+            get { return _group; }
+            set
+            {
+                if (_group != value)
+                {
+                    _group = value;
+                    NotifyPropertyChanged("Group");
+                }
             }
         }
 

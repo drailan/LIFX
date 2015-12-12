@@ -39,6 +39,18 @@ namespace LIFX
 		return TRUE;
 	}
 
+	bool LIFXEntry::PopulateGroups(BSTR* names)
+	{
+		auto labels = getInstance()->GetGroups();
+
+		if (labels.size() == 0) return FALSE;
+
+		for (auto i = 0; i < labels.size(); ++i) {
+			names[i] = SysAllocString(labels.at(i).c_str());
+		}
+		return TRUE;
+	}
+
 	bool LIFXEntry::GetLightState(wstring s, uint32_t* p)
 	{
 		auto light_state = getInstance()->GetLightState(s.c_str());

@@ -14,6 +14,7 @@ namespace LIFX
 		public:
 			static void Discover();
 			static bool PopulateLabels(BSTR*);
+			static bool PopulateGroups(BSTR*);
 			static bool GetLightState(std::wstring, uint32_t*);
 			static void SetPower(std::wstring, uint16_t);
 			static void SetLightColor(std::wstring, uint16_t*);
@@ -23,7 +24,8 @@ namespace LIFX
 	};
 
 	extern "C" { LIFX_API inline void Discover() { LIFXEntry::Discover(); }}
-	extern "C" { LIFX_API inline void PopulateLabels(BSTR* s) { LIFXEntry::PopulateLabels(s); } }
+	extern "C" { LIFX_API inline void GetLabels(BSTR* s) { LIFXEntry::PopulateLabels(s); } }
+	extern "C" { LIFX_API inline void GetGroups(BSTR* s) { LIFXEntry::PopulateGroups(s); } }
 	extern "C" { LIFX_API inline void SetPower(BSTR s, uint16_t onoff)
 	{
 		assert(s != nullptr);

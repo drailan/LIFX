@@ -30,6 +30,19 @@ namespace LIFXGui.ViewModels
             NotifyPropertyChanged(e.PropertyName);
         }
 
+        public string Group
+        {
+            get { return _bulb.Group; }
+            set
+            {
+                if (_bulb.Group != value)
+                {
+                    _bulb.Group = value;
+                    NotifyPropertyChanged("Group");
+                }
+            }
+        }
+
         public string Label
         {
             get { return _bulb.Label; }

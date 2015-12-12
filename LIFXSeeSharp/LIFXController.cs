@@ -21,9 +21,13 @@ namespace LIFXSeeSharp
 		private static extern void Discover();
 
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-		private static extern bool PopulateLabels([Out] IntPtr[] labels);
+		private static extern bool GetLabels([Out] IntPtr[] labels);
 
-		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern bool GetGroups([Out] IntPtr[] labels);
+
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool SetPower(string label, ushort onoff);
 
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
@@ -43,13 +47,23 @@ namespace LIFXSeeSharp
 
 			Bulbs = new List<LifxBulb>();
 			var labels = new IntPtr[NUM_BULBS];
-			PopulateLabels(labels);
-			var names = new string[labels.Length];
+            var groups = new IntPtr[NUM_BULBS];
+
+			GetLabels(labels);
+            GetGroups(groups);
+
+			var label_names = new string[labels.Length];
+            var group_names = new string[groups.Length];
 
 			for (var i = 0; i < labels.Length; ++i) {
-				names[i] = Marshal.PtrToStringBSTR(labels[i]);
+                label_names[i] = Marshal.PtrToStringBSTR(labels[i]);
+                group_names[i] = Marshal.PtrToStringBSTR(groups[i]);
 				Marshal.FreeBSTR(labels[i]);
-				Bulbs.Add(new LifxBulb(names[i]));
+                Marshal.FreeBSTR(groups[i]);
+                Bulbs.Add(new LifxBulb(label_names[i])
+                {
+                    Group = group_names[i]
+                });
 			}
 		}
 

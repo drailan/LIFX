@@ -35,6 +35,7 @@ namespace LIFX
 
 	typedef struct
 	{
+		wchar_t group[256];
 		wchar_t label[256];
 		char ip[50];
 		uint64_t mac;
@@ -60,20 +61,21 @@ namespace LIFX
 		
 		void Discover();
 		std::vector<std::wstring> GetLabels();
+		std::vector<std::wstring> GetGroups();
 
 		void SetPower(const wchar_t*, uint16_t);
 		void SetLightColor(const wchar_t*, uint16_t*);
 		light_state GetLightState(const wchar_t*);
+
 	private:
-		void init_network();
-		void get_bulb_info();
-		std::wstring get_label(const lifx_bulb);
+		void InitNetwork();
+		std::wstring GetLabel(const lifx_bulb);
+		std::wstring GetGroup(const lifx_bulb);
 		static uint32_t InvertAndConvertHexBufToUint(char[2]);
 
-		static uint64_t string_to_mac(const char*);
-		static uint64_t get_mac(char*);
-
-		static void print_hex_memory(void*);
+		static void FormMac(uint8_t*, uint64_t);
+		static uint64_t StringToMac(const char*);
+		static uint64_t GetMacFromIP(char*);
 
 		SOCKET bcast_socket;
 		SOCKET out_socket;

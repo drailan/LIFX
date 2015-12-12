@@ -37,6 +37,7 @@ namespace LIFXGui.ViewModels
                 _bulbs.Add(new BulbViewModel(b));
             });
 
+            await Task.Run(() => _controller.SetPower(1, "La"));
             await Task.Run(() => _controller.GetLightState());
         }
     }

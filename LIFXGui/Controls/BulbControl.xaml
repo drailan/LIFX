@@ -26,6 +26,10 @@
                    Grid.Column="0"
                    Text="{Binding Label}"/>
 
+        <TextBlock Grid.Row="0"
+                   Grid.Column="1"
+                   Text="{Binding Group}"/>
+
         <TextBlock Grid.Row="1"
                    Grid.Column="0"
                    Text="Power"/>
