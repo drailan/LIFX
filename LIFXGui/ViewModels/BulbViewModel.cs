@@ -6,12 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using LIFXSeeSharp;
+using System.Windows.Input;
+using LIFXGui.Commands;
 
 namespace LIFXGui.ViewModels
 {
     class BulbViewModel : ViewModelBase
     {
         private LifxBulb _bulb;
+        private LifxController _controller;
 
         public LifxBulb Bulb
         {
@@ -19,9 +22,12 @@ namespace LIFXGui.ViewModels
             set { _bulb = value; }
         }
 
-        public BulbViewModel(LifxBulb b)
+        public BulbViewModel(LifxBulb b, LifxController controller)
         {
+            Console.WriteLine("------------------- in bulb view model constructor -----------------");
             Bulb = b;
+            _controller = controller;
+
             _bulb.PropertyChanged += _bulb_PropertyChanged;
         }
 
@@ -32,7 +38,7 @@ namespace LIFXGui.ViewModels
 
         public string Group
         {
-            get { return _bulb.Group; }
+            get { Console.WriteLine("------------------- in Group -----------------");  return _bulb.Group; }
             set
             {
                 if (_bulb.Group != value)
@@ -45,7 +51,7 @@ namespace LIFXGui.ViewModels
 
         public string Label
         {
-            get { return _bulb.Label; }
+            get { Console.WriteLine("------------------- in Label -----------------");  return _bulb.Label; }
             set {
                 if (_bulb.Label != value) {
                     _bulb.Label = value;
@@ -56,7 +62,7 @@ namespace LIFXGui.ViewModels
 
         public float Hue
         {
-            get { return _bulb.Hue; }
+            get { Console.WriteLine("------------------- in Hue -----------------");  return _bulb.Hue; }
             set {
                 if (_bulb.Hue != value)
                 {
@@ -68,7 +74,7 @@ namespace LIFXGui.ViewModels
 
         public float Saturation
         {
-            get { return _bulb.Saturation; }
+            get { Console.WriteLine("------------------- in Saturation -----------------");  return _bulb.Saturation; }
             set
             {
                 if (_bulb.Saturation != value)
@@ -80,7 +86,7 @@ namespace LIFXGui.ViewModels
         }
         public float Brightness
         {
-            get { return _bulb.Brightness; }
+            get { Console.WriteLine("------------------- in Brightness -----------------");  return _bulb.Brightness; }
             set
             {
                 if (_bulb.Brightness != value)
@@ -91,13 +97,13 @@ namespace LIFXGui.ViewModels
             }
         }
 
-        public ushort Kelvin
+        public int Kelvin
         {
-            get { return _bulb.Kelvin; }
+            get { Console.WriteLine("------------------- in Kelvin -----------------");  return (int) _bulb.Kelvin; }
             set {
                 if (_bulb.Kelvin != value)
                 {
-                    _bulb.Kelvin = value;
+                    _bulb.Kelvin = (ushort) value;
                     NotifyPropertyChanged("Kelvin");
                 }
             }
@@ -105,7 +111,7 @@ namespace LIFXGui.ViewModels
 
         public ushort Dim
         {
-            get { return _bulb.Dim; }
+            get { Console.WriteLine("------------------- in Dim -----------------");  return _bulb.Dim; }
             set
             {
                 if (_bulb.Dim != value)
@@ -117,7 +123,7 @@ namespace LIFXGui.ViewModels
         }
         public ushort Power
         {
-            get { return _bulb.Power; }
+            get { Console.WriteLine("------------------- in Power -----------------");  return _bulb.Power; }
             set
             {
                 if (_bulb.Power != value)
@@ -125,6 +131,20 @@ namespace LIFXGui.ViewModels
                     _bulb.Power = value;
                     NotifyPropertyChanged("Power");
                 }
+            }
+        }
+
+        public ICommand PowerCommand
+        {
+            get
+            {
+                return new CommandBase(() => {
+                    var power = (ushort) ((Power > 0) ? 0 : 1);
+                    var newPower = _controller.SetPower(power, Label);
+                    Power = power;
+                    //newPower.Wait();
+                    //Power = newPower.Result;
+                });
             }
         }
     }

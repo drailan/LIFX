@@ -64,6 +64,9 @@ namespace LIFX
 		std::vector<std::wstring> GetGroups();
 
 		void SetPower(const wchar_t*, uint16_t);
+        uint16_t GetPower(const wchar_t*);
+
+
 		void SetLightColor(const wchar_t*, uint16_t*);
 		light_state GetLightState(const wchar_t*);
 

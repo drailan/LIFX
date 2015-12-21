@@ -19,35 +19,53 @@ namespace LIFX
 		return instance;
 	}
 
-	void LIFXEntry::Discover() { getInstance()->Discover(); }
-	void LIFXEntry::SetPower(wstring s, uint16_t p)	{ getInstance()->SetPower(s.c_str(), p); }
+	void LIFXEntry::Discover() { 
+        getInstance()->Discover(); 
+    }
+
+	void LIFXEntry::SetPower(wstring s, uint16_t p)	
+    { 
+        getInstance()->SetPower(s.c_str(), p); 
+    }
+
+    void LIFXEntry::GetPower(wstring s, uint16_t* state)
+    {
+        auto power_state = getInstance()->GetPower(s.c_str());
+        state[0] = power_state;
+    }
 
 	void LIFXEntry::SetLightColor(wstring s, uint16_t* p)
 	{
 		getInstance()->SetLightColor(s.c_str(), p);
 	}
 
-	bool LIFXEntry::PopulateLabels(BSTR* names)
+	bool LIFXEntry::PopulateLabels(wchar_t** names)
 	{
 		auto labels = getInstance()->GetLabels();
 
 		if (labels.size() == 0) return FALSE;
 
 		for (auto i = 0; i < labels.size(); ++i) {
-			names[i] = SysAllocString(labels.at(i).c_str());
+            wcscpy(names[i], labels.at(i).c_str());
 		}
+
+        labels.clear();
+
 		return TRUE;
 	}
 
-	bool LIFXEntry::PopulateGroups(BSTR* names)
+	bool LIFXEntry::PopulateGroups(wchar_t** names)
 	{
 		auto labels = getInstance()->GetGroups();
 
 		if (labels.size() == 0) return FALSE;
 
 		for (auto i = 0; i < labels.size(); ++i) {
-			names[i] = SysAllocString(labels.at(i).c_str());
+            wcscpy(names[i], labels.at(i).c_str());
 		}
+
+        labels.clear();
+
 		return TRUE;
 	}
 

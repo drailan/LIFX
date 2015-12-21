@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -23,18 +24,20 @@ namespace LIFXSeeSharp
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool GetLabels([Out] IntPtr[] labels);
 
-
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern bool GetGroups([Out] IntPtr[] labels);
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool SetPower(string label, ushort onoff);
 
-		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern bool GetPower(string label, [Out] ushort[] state);
+
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool SetLightColor(string label, ushort[] state);
 
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-		private static extern bool GetLightState(string label, [Out] IntPtr[] state);
+		private static extern bool GetLightState(string label, [Out] uint[] state);
 
 		public List<LifxBulb> Bulbs { get; set; }
 
@@ -45,27 +48,40 @@ namespace LIFXSeeSharp
 		{
 			Discover();
 
-			Bulbs = new List<LifxBulb>();
+			if (Bulbs == null)
+            {
+                Bulbs = new List<LifxBulb>();
+            }
+
+            Bulbs.Clear();
+
 			var labels = new IntPtr[NUM_BULBS];
             var groups = new IntPtr[NUM_BULBS];
 
-			GetLabels(labels);
+            for (var i = 0; i < labels.Length; ++i) {
+                labels[i] = Marshal.AllocHGlobal(256);
+                groups[i] = Marshal.AllocHGlobal(256);
+            }
+
+            GetLabels(labels);
             GetGroups(groups);
 
-			var label_names = new string[labels.Length];
+            var label_names = new string[labels.Length];
             var group_names = new string[groups.Length];
+            for (var i = 0; i < labels.Length; ++i) {
+                label_names[i] = Marshal.PtrToStringUni(labels[i]);
+                group_names[i] = Marshal.PtrToStringUni(groups[i]);
+                Marshal.FreeHGlobal(labels[i]);
+                Marshal.FreeHGlobal(groups[i]);
+                labels[i] = IntPtr.Zero;
+                groups[i] = IntPtr.Zero;
 
-			for (var i = 0; i < labels.Length; ++i) {
-                label_names[i] = Marshal.PtrToStringBSTR(labels[i]);
-                group_names[i] = Marshal.PtrToStringBSTR(groups[i]);
-				Marshal.FreeBSTR(labels[i]);
-                Marshal.FreeBSTR(groups[i]);
                 Bulbs.Add(new LifxBulb(label_names[i])
                 {
                     Group = group_names[i]
                 });
-			}
-		}
+            }
+        }
 
 		public async Task GetLightState(string label = null)
 		{
@@ -75,30 +91,42 @@ namespace LIFXSeeSharp
 					.ToList()
 					.ForEach(b => 
 					{
-						var state = new IntPtr[6];
-						GetLightState(b.Label, state);
+                        try {
+                            var state = new uint[6];
+                            GetLightState(b.Label, state);
 
-						b.Hue = (float)state[0] * 360 / ushort.MaxValue;
-						b.Saturation = (float)state[1] / ushort.MaxValue;
-						b.Brightness = (float)state[2] / ushort.MaxValue;
-						b.Kelvin = (ushort)state[3];
-						b.Dim = (ushort)state[4];
-						b.Power = (ushort)state[5];
+                            b.Hue = (float)state[0] * 360 / ushort.MaxValue;
+                            b.Saturation = (float)state[1] / ushort.MaxValue;
+                            b.Brightness = (float)state[2] / ushort.MaxValue;
+                            b.Kelvin = (ushort)state[3];
+                            b.Dim = (ushort)state[4];
+                            b.Power = (ushort)state[5];
+                        }
+                        catch
+                        {
+                            Debugger.Break();
+                        }
 					});
 			}
 			else
 			{
 				Bulbs.ForEach(b =>
 						{
-							var state = new IntPtr[6];
-							GetLightState(b.Label, state);
+                            try {
+                                var state = new uint[6];
+                                GetLightState(b.Label, state);
 
-							b.Hue = (float)state[0] * 360 / ushort.MaxValue;
-							b.Saturation = (float)state[1] / ushort.MaxValue;
-							b.Brightness = (float)state[2] / ushort.MaxValue;
-							b.Kelvin = (ushort)state[3];
-							b.Dim = (ushort)state[4];
-							b.Power = (ushort)state[5];
+                                b.Hue = (float)state[0] * 360 / ushort.MaxValue;
+                                b.Saturation = (float)state[1] / ushort.MaxValue;
+                                b.Brightness = (float)state[2] / ushort.MaxValue;
+                                b.Kelvin = (ushort)state[3];
+                                b.Dim = (ushort)state[4];
+                                b.Power = (ushort)state[5];
+                            } 
+                            catch
+                            {
+                                Debugger.Break();
+                            }
 						});
 			}
 		}
@@ -135,18 +163,43 @@ namespace LIFXSeeSharp
 			}
 		}
 
-		public async Task SetPower(ushort onoff, string target = null)
+		public async Task<ushort> SetPower(ushort onoff, string target = null)
 		{
 			if (target != null)
 			{
-				Bulbs.Where(b => b.Label == target)
+                var bulb = Bulbs.Where(b => b.Label == target)
                       .ToList()
-                      .ForEach(b => SetPower(b.Label, onoff));
+                      .FirstOrDefault();
+                      
+                SetPower(bulb.Label, onoff);
+                return await GetPower(bulb.Label);
 			}
 			else
 			{
-				Bulbs.ForEach(b => SetPower(b.Label, onoff));
+				Bulbs.ForEach(/*async*/ b => {
+                    SetPower(b.Label, onoff);
+                    //await GetPower(b.Label);
+                });
 			}
+
+            return 0;
 		}
+
+        public Task<ushort> GetPower(string target)
+        {
+            if (target != null)
+            {
+                var power = new ushort[1];
+                var bulb = Bulbs.Where(b => b.Label == target)
+                    .ToList()
+                    .FirstOrDefault();
+                GetPower(bulb.Label, power);
+                bulb.Power = power[0];
+
+                return Task.FromResult((ushort)power[0]);
+            }
+
+            return Task.FromResult((ushort)0);
+        }
 	}
 }

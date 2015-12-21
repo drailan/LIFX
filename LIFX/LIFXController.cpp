@@ -54,9 +54,58 @@ namespace LIFX
 				buf[37] = value >> 8;
 
 				iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(& addr), sizeof(addr));
+                closesocket(out_socket);
 			}
 		}
 	}
+
+    uint16_t LIFXController::GetPower(const wchar_t* target)
+    {
+        for (auto &bulb : bulbs) {
+            if (wcscmp(bulb.label, target) == 0) {
+                int iResult;
+
+                auto packet = new lifx_header();
+                memset(packet, 0, sizeof(lifx_header));
+                packet->size = sizeof(lifx_header);
+                packet->type = 20;
+                packet->protocol = _byteswap_ushort(0x34);
+
+                FormMac(packet->site, bulb.site_address);
+
+                out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+                inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
+
+                iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+
+                auto recvbuflen = 512;
+                char recvbuf[512];
+
+                addr.sin_addr.s_addr = INADDR_ANY;
+                in_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+                iResult = bind(in_socket, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+
+                sockaddr_in from;
+                int from_length = sizeof(sockaddr_in);
+
+                do {
+                    iResult = recvfrom(in_socket, recvbuf, recvbuflen, 0, reinterpret_cast<SOCKADDR*>(&from), &from_length);
+                    if (iResult > 0) {
+                        break; // ой, все
+                    } else if (iResult == 0) {
+                        printf("Connection closed\n");
+                    } else {
+                        printf("recv failed: %d\n", WSAGetLastError());
+                    }
+                } while (iResult > 0);
+
+                closesocket(out_socket);
+                closesocket(in_socket);
+
+                return InvertAndConvertHexBufToUint(&recvbuf[36]);
+            }
+        }
+    }
 
 	void LIFXController::SetLightColor(const wchar_t* target, uint16_t* state)
 	{
@@ -98,6 +147,7 @@ namespace LIFX
 				buf[46] = state[4] >> 8;
 
 				iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+                closesocket(out_socket);
 			}
 		}
 	}
@@ -115,9 +165,8 @@ namespace LIFX
 				packet->protocol = _byteswap_ushort(0x34);
 
 				FormMac(packet->site, bulb.site_address);
-
+                
 				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				//addr.sin_addr.s_addr = inet_addr(bulb.ip);
 				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
 				iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
@@ -165,12 +214,6 @@ namespace LIFX
 	void LIFXController::InitNetwork()
 	{
 		WSAStartup(MAKEWORD(2, 2), &wsaData);
-		bcast_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		char opt = 1;
-		setsockopt(bcast_socket, SOL_SOCKET, SO_BROADCAST, static_cast<char*>(&opt), sizeof(char));
-
-		out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		in_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	}
 
 	vector<wstring> LIFXController::GetLabels()
@@ -237,6 +280,7 @@ namespace LIFX
 			}
 		} while (iResult > 0);
 
+        closesocket(out_socket);
 		closesocket(in_socket);
 		closesocket(bcast_socket);
 
@@ -258,9 +302,10 @@ namespace LIFX
 
 		auto site_address_proper = StringToMac(site_address);
 
+        bulbs.clear();
+
 		for (i = 0; i < NUM_LAMPS; ++i) {
 			bulbs.push_back(lifx_bulb());
-			//strcpy(bulbs[i].ip, inet_ntoa(from[i].sin_addr));
 			inet_ntop(AF_INET, &from[i].sin_addr, bulbs[i].ip, INET_ADDRSTRLEN);
 			bulbs[i].mac = GetMacFromIP(bulbs[i].ip);
 			bulbs[i].site_address = site_address_proper;
@@ -282,7 +327,6 @@ namespace LIFX
 		FormMac(packet->site, bulb.site_address);
 
 		out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		//addr.sin_addr.s_addr = inet_addr(target.ip);
 		inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
 		iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
@@ -334,7 +378,6 @@ namespace LIFX
 		FormMac(packet->site, target.site_address);
 
 		out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		//addr.sin_addr.s_addr = inet_addr(target.ip);
 		inet_pton(AF_INET, target.ip, &(addr.sin_addr.s_addr));
 
 		iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));

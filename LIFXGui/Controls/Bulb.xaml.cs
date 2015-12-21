@@ -15,14 +15,14 @@ using System.Windows.Shapes;
 
 namespace LIFXGui.Controls
 {
-    /// <summary>
-    /// Interaction logic for BulbContorl.xaml
-    /// </summary>
-    public partial class BulbControl : UserControl
-    {
-        public BulbControl()
-        {
-            InitializeComponent();
-        }
-    }
+	/// <summary>
+	/// Interaction logic for Bulb.xaml
+	/// </summary>
+	public partial class Bulb : UserControl
+	{
+		public Bulb()
+		{
+			InitializeComponent();
+		}
+	}
 }

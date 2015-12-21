@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using LIFXSeeSharp;
+using System.Windows.Input;
+using LIFXGui.Commands;
 
 namespace LIFXGui.ViewModels
 {
@@ -13,6 +15,7 @@ namespace LIFXGui.ViewModels
     {
         private LifxController _controller;
         private ObservableCollection<BulbViewModel> _bulbs;
+        private bool _isExecuting;
 
         public ObservableCollection<BulbViewModel> Bulbs
         {
@@ -25,20 +28,38 @@ namespace LIFXGui.ViewModels
             _controller = new LifxController();
             _bulbs = new ObservableCollection<BulbViewModel>();
 
-            Task t = InitializeAsync();
+            //Task t = InitializeAsync();
         }
 
         public async Task InitializeAsync()
         {
-            await Task.Run(() => _controller.RunInitialDiscovery());
+            await _controller.RunInitialDiscovery();
 
             _controller.Bulbs.ForEach(b =>
             {
-                _bulbs.Add(new BulbViewModel(b));
+                Console.WriteLine("----------------------------------");
+                Console.WriteLine(b);
+                _bulbs.Add(new BulbViewModel(b, _controller));
             });
 
-            await Task.Run(() => _controller.SetPower(1, "La"));
-            await Task.Run(() => _controller.GetLightState());
+            await _controller.GetLightState();
+        }
+
+        public ICommand RefreshCommand
+        {
+            get
+            {
+                return new CommandBase(() =>
+                {
+                    if (!_isExecuting)
+                    {
+                        _isExecuting = true;
+                        _bulbs.Clear();
+                        var t = InitializeAsync();
+                        _isExecuting = false;
+                    }
+                });
+            }
         }
     }
 }
