@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using LIFXSeeSharp;
 using System.Windows.Input;
 using LIFXGui.Commands;
+using System.Reactive.Linq;
+using System.Threading;
 
 namespace LIFXGui.ViewModels
 {
@@ -28,21 +27,26 @@ namespace LIFXGui.ViewModels
             _controller = new LifxController();
             _bulbs = new ObservableCollection<BulbViewModel>();
 
+            InitObservableProperties();
+
             //Task t = InitializeAsync();
         }
 
-        public async Task InitializeAsync()
+        private void InitObservableProperties()
         {
-            await _controller.RunInitialDiscovery();
+            _controller.ObserveBulbDiscovery()
+                       .ObserveOn(SynchronizationContext.Current)
+                       .Do(b =>
+                       {
+                           _bulbs.Add(new BulbViewModel(b, _controller));
+                       })
+                       .Subscribe();
+        }
 
-            _controller.Bulbs.ForEach(b =>
-            {
-                Console.WriteLine("----------------------------------");
-                Console.WriteLine(b);
-                _bulbs.Add(new BulbViewModel(b, _controller));
-            });
-
-            await _controller.GetLightState();
+        public void Initialize()
+        {
+            _controller.RunInitialDiscovery();
+            //await _controller.GetLightState();
         }
 
         public ICommand RefreshCommand
@@ -51,13 +55,8 @@ namespace LIFXGui.ViewModels
             {
                 return new CommandBase(() =>
                 {
-                    if (!_isExecuting)
-                    {
-                        _isExecuting = true;
-                        _bulbs.Clear();
-                        var t = InitializeAsync();
-                        _isExecuting = false;
-                    }
+                    _bulbs.Clear();
+                    Initialize();
                 });
             }
         }

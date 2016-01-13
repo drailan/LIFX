@@ -17,16 +17,21 @@ namespace LIFX
 		/* frame */
 		uint16_t size; // LE
 		uint16_t protocol : 16;
-		uint32_t source; // reserved
+
+		uint32_t source; // setting source to anything other then 0 will make the bulbs send a unicast
 
 		 /* frame address */
-		uint8_t  target[6];
-		uint16_t: 16; // always 0 ( mac padding )
+		uint8_t target[6];
+		uint8_t padding[2]; // always 0 ( 2 byte mac padding )
 		uint8_t site[6];
-		uint16_t:16; // reserved 3
+        
+        uint8_t  res_required : 1;
+        uint8_t  ack_required : 1;
+        uint8_t:6;
+        uint8_t  sequence;
 
 		/* protocol header */
-		uint64_t:64; // timestamp
+		uint64_t timestamp: 64; // timestamp
 		uint16_t type;
 		uint16_t:16;
 		/* variable length payload follows */
@@ -59,7 +64,11 @@ namespace LIFX
 		LIFXController();
 		~LIFXController();
 		
-		void Discover();
+
+		void GetDiscoveryPacket(uint8_t, void*);
+        void GetLabelPacket(uint64_t, uint8_t, void*);
+
+        void Discover();
 		std::vector<std::wstring> GetLabels();
 		std::vector<std::wstring> GetGroups();
 
@@ -78,6 +87,7 @@ namespace LIFX
 
 		static void FormMac(uint8_t*, uint64_t);
 		static uint64_t StringToMac(const char*);
+        static uint64_t* StringToMacPtr(const char*);
 		static uint64_t GetMacFromIP(char*);
 
 		SOCKET bcast_socket;

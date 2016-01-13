@@ -1,15 +1,20 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Net;
 using System.Text;
 
 namespace LIFXSeeSharp
 {
 	public class LifxBulb : INotifyPropertyChanged
 	{
+        private ulong _mac;
+        private ulong _site;
+        private IPAddress _ip;
+
         private string _group;
         private string _label;
         private float _hue;
-        private float _saturation;        
+        private float _saturation;
         private float _brightness;
         private ushort _kelvin;
         private ushort _dim;
@@ -127,6 +132,44 @@ namespace LIFXSeeSharp
             }
         }
 
+        public ulong SiteAddress {
+            get { return _site; }
+            set
+            {
+                if (_site != value)
+                {
+                    _site = value;
+                    NotifyPropertyChanged("SiteAddress");
+                }
+            }
+        }
+
+        public ulong Mac
+        {
+            get { return _mac; }
+            set
+            {
+                if (_mac != value)
+                {
+                    _mac = value;
+                    NotifyPropertyChanged("Mac");
+                }
+            }
+        }
+
+        public IPAddress IP
+        {
+            get { return _ip; }
+            set
+            {
+                if (_ip != value)
+                {
+                    _ip = value;
+                    NotifyPropertyChanged("IP");
+                }
+            }
+        }
+
         public LifxBulb(string label = "")
 		{
 			Label = label;
@@ -135,8 +178,8 @@ namespace LIFXSeeSharp
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			sb.AppendFormat("Label: {0}\n\tHue: {1}\n\tSaturation: {2}\n\tBrightNess: {3}\n\tKelvin: {4}\n\tDim: {5}\n\tPower: {6}\n",
-				Label, Hue, Saturation, Brightness, Kelvin, Dim, Power);
+			sb.AppendFormat("Label: {0}\n\tHue: {1}\n\tSaturation: {2}\n\tBrightNess: {3}\n\tKelvin: {4}\n\tDim: {5}\n\tPower: {6}\nIP: {7}\n",
+				Label, Hue, Saturation, Brightness, Kelvin, Dim, Power, IP.ToString());
 			return sb.ToString();
 		}
 
@@ -148,7 +191,7 @@ namespace LIFXSeeSharp
                 return Label == bulb.Label;
             }
 
-            return false;            
+            return false;
         }
 
         public override int GetHashCode()

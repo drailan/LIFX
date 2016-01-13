@@ -18,46 +18,45 @@ using namespace std;
 namespace LIFX
 {
 
-	LIFXController::LIFXController()
-	{
-		setlocale(LC_CTYPE, "");
-		bulbs = vector<lifx_bulb>();
-		InitNetwork();
+    LIFXController::LIFXController()
+    {
+        setlocale(LC_CTYPE, "");
+        bulbs = vector<lifx_bulb>();
+        InitNetwork();
 
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons(DEFAULT_PORT);
-	}
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(DEFAULT_PORT);
+    }
 
-	void LIFXController::SetPower(const wchar_t* target, uint16_t value)
-	{
-		for (auto &bulb : bulbs) {
-			if (wcscmp(bulb.label, target) == 0) {
-				int iResult;
+    void LIFXController::SetPower(const wchar_t* target, uint16_t value)
+    {
+        for (auto &bulb : bulbs) {
+            if (wcscmp(bulb.label, target) == 0) {
+                int iResult;
 
-				auto packet = new lifx_header();
-				memset(packet, 0, sizeof(lifx_header));
-				packet->size = sizeof(lifx_header) + 6;
-				packet->type = 0x0075;
-				packet->protocol = _byteswap_ushort(0x14);
+                auto packet = new lifx_header();
+                memset(packet, 0, sizeof(lifx_header));
+                packet->size = sizeof(lifx_header) + 6;
+                packet->type = 0x0075;
+                packet->protocol = _byteswap_ushort(0x14);
 
-				FormMac(packet->target, bulb.mac);
-				FormMac(packet->site, bulb.site_address);
+                FormMac(packet->target, bulb.mac);
+                FormMac(packet->site, bulb.site_address);
 
-				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				//addr.sin_addr.s_addr = inet_addr(bulb.ip);
-				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
+                out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+                inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
-				char buf[42];
-				ZeroMemory(buf, sizeof(buf));
-				memcpy(buf, packet, 36);
-				buf[36] = value & 0xFF;
-				buf[37] = value >> 8;
+                char buf[42];
+                ZeroMemory(buf, sizeof(buf));
+                memcpy(buf, packet, 36);
+                buf[36] = value & 0xFF;
+                buf[37] = value >> 8;
 
-				iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(& addr), sizeof(addr));
+                iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
                 closesocket(out_socket);
-			}
-		}
-	}
+            }
+        }
+    }
 
     uint16_t LIFXController::GetPower(const wchar_t* target)
     {
@@ -107,137 +106,151 @@ namespace LIFX
         }
     }
 
-	void LIFXController::SetLightColor(const wchar_t* target, uint16_t* state)
-	{
-		for (auto &bulb : bulbs) {
-			if (wcscmp(bulb.label, target) == 0) {
-				int iResult;
+    void LIFXController::SetLightColor(const wchar_t* target, uint16_t* state)
+    {
+        for (auto &bulb : bulbs) {
+            if (wcscmp(bulb.label, target) == 0) {
+                int iResult;
 
-				auto packet = new lifx_header();
-				memset(packet, 0, sizeof(lifx_header));
-				packet->size = sizeof(lifx_header) + 13;
-				packet->type = 0x0066;
-				packet->protocol = _byteswap_ushort(0x14);
+                auto packet = new lifx_header();
+                memset(packet, 0, sizeof(lifx_header));
+                packet->size = sizeof(lifx_header) + 13;
+                packet->type = 0x0066;
+                packet->protocol = _byteswap_ushort(0x14);
 
-				FormMac(packet->target, bulb.mac);
-				FormMac(packet->site, bulb.site_address);
+                FormMac(packet->target, bulb.mac);
+                FormMac(packet->site, bulb.site_address);
 
-				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				//addr.sin_addr.s_addr = inet_addr(bulb.ip);
-				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
+                out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+                //addr.sin_addr.s_addr = inet_addr(bulb.ip);
+                inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
-				char buf[49];
-				ZeroMemory(buf, sizeof(buf));
-				memcpy(buf, packet, 36);
-				buf[36] = 0;
-				
-				buf[37] = state[0] & 0xFF;
-				buf[38] = state[0] >> 8;
+                char buf[49];
+                ZeroMemory(buf, sizeof(buf));
+                memcpy(buf, packet, 36);
+                buf[36] = 0;
 
-				buf[39] = state[1] & 0xFF;
-				buf[40] = state[1] >> 8;
+                buf[37] = state[0] & 0xFF;
+                buf[38] = state[0] >> 8;
 
-				buf[41] = state[2] & 0xFF;
-				buf[42] = state[2] >> 8;
+                buf[39] = state[1] & 0xFF;
+                buf[40] = state[1] >> 8;
 
-				buf[43] = state[3] & 0xFF;
-				buf[44] = state[3] >> 8;
+                buf[41] = state[2] & 0xFF;
+                buf[42] = state[2] >> 8;
 
-				buf[45] = state[4] & 0xFF;
-				buf[46] = state[4] >> 8;
+                buf[43] = state[3] & 0xFF;
+                buf[44] = state[3] >> 8;
 
-				iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+                buf[45] = state[4] & 0xFF;
+                buf[46] = state[4] >> 8;
+
+                iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
                 closesocket(out_socket);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	light_state LIFXController::GetLightState(const wchar_t* label)
-	{
-		for (auto &bulb : bulbs) {
-			if (wcscmp(bulb.label, label) == 0) {
-				int iResult;
+    light_state LIFXController::GetLightState(const wchar_t* label)
+    {
+        for (auto &bulb : bulbs) {
+            if (wcscmp(bulb.label, label) == 0) {
+                int iResult;
 
-				auto packet = new lifx_header();
-				memset(packet, 0, sizeof(lifx_header));
-				packet->size = sizeof(lifx_header);
-				packet->type = 101;
-				packet->protocol = _byteswap_ushort(0x34);
+                auto packet = new lifx_header();
+                memset(packet, 0, sizeof(lifx_header));
+                packet->size = sizeof(lifx_header);
+                packet->type = 101;
+                packet->protocol = _byteswap_ushort(0x34);
 
-				FormMac(packet->site, bulb.site_address);
-                
-				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
+                FormMac(packet->site, bulb.site_address);
 
-				iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+                out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+                inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
-				auto recvbuflen = 512;
-				char recvbuf[512];
+                iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
 
-				addr.sin_addr.s_addr = INADDR_ANY;
-				in_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				iResult = bind(in_socket, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+                auto recvbuflen = 512;
+                char recvbuf[512];
 
-				sockaddr_in from;
-				int from_length = sizeof(sockaddr_in);
+                addr.sin_addr.s_addr = INADDR_ANY;
+                in_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+                iResult = bind(in_socket, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
 
-				do {
-					iResult = recvfrom(in_socket, recvbuf, recvbuflen, 0, reinterpret_cast<SOCKADDR*>(&from), &from_length);
-					if (iResult > 0) {
-						break; // ой, все
-					} else if (iResult == 0) {
-						printf("Connection closed\n");
-					} else {
-						printf("recv failed: %d\n", WSAGetLastError());
-					}
-				} while (iResult > 0);
+                sockaddr_in from;
+                int from_length = sizeof(sockaddr_in);
 
-				closesocket(out_socket);
-				closesocket(in_socket);
+                do {
+                    iResult = recvfrom(in_socket, recvbuf, recvbuflen, 0, reinterpret_cast<SOCKADDR*>(&from), &from_length);
+                    if (iResult > 0) {
+                        break; // ой, все
+                    } else if (iResult == 0) {
+                        printf("Connection closed\n");
+                    } else {
+                        printf("recv failed: %d\n", WSAGetLastError());
+                    }
+                } while (iResult > 0);
 
-				auto state = light_state();
-				strcpy(state.label, &recvbuf[48]);
-				state.power = InvertAndConvertHexBufToUint(&recvbuf[46]);
-				state.dim = InvertAndConvertHexBufToUint(&recvbuf[44]);
-				state.kelvin = InvertAndConvertHexBufToUint(&recvbuf[42]);
-				state.brightness = InvertAndConvertHexBufToUint(&recvbuf[40]);
-				state.saturation = InvertAndConvertHexBufToUint(&recvbuf[38]);
-				state.hue = InvertAndConvertHexBufToUint(&recvbuf[36]);
+                closesocket(out_socket);
+                closesocket(in_socket);
 
-				return state;
-			}
-		}
+                auto state = light_state();
+                strcpy(state.label, &recvbuf[48]);
+                state.power = InvertAndConvertHexBufToUint(&recvbuf[46]);
+                state.dim = InvertAndConvertHexBufToUint(&recvbuf[44]);
+                state.kelvin = InvertAndConvertHexBufToUint(&recvbuf[42]);
+                state.brightness = InvertAndConvertHexBufToUint(&recvbuf[40]);
+                state.saturation = InvertAndConvertHexBufToUint(&recvbuf[38]);
+                state.hue = InvertAndConvertHexBufToUint(&recvbuf[36]);
 
-		return light_state();
-	}
+                return state;
+            }
+        }
 
-	void LIFXController::InitNetwork()
-	{
-		WSAStartup(MAKEWORD(2, 2), &wsaData);
-	}
+        return light_state();
+    }
 
-	vector<wstring> LIFXController::GetLabels()
-	{
-		auto out = vector<wstring>();
-		for (auto bulb : bulbs)
-		{
-			out.push_back(bulb.label);
-		}
+    void LIFXController::InitNetwork()
+    {
+        WSAStartup(MAKEWORD(2, 2), &wsaData);
+    }
 
-		return out;
-	}
+    vector<wstring> LIFXController::GetLabels()
+    {
+        auto out = vector<wstring>();
+        for (auto bulb : bulbs) {
+            out.push_back(bulb.label);
+        }
 
-	vector<wstring> LIFXController::GetGroups()
-	{
-		auto out = vector<wstring>();
-		for (auto bulb : bulbs) {
-			out.push_back(bulb.group);
-		}
+        return out;
+    }
 
-		return out;
-	}
+    vector<wstring> LIFXController::GetGroups()
+    {
+        auto out = vector<wstring>();
+        for (auto bulb : bulbs) {
+            out.push_back(bulb.group);
+        }
 
-	void LIFXController::Discover()
+        return out;
+    }
+
+    void LIFXController::GetDiscoveryPacket(uint8_t seq, void* ptr)
+    {
+        auto packet = new lifx_header();
+        memset(packet, 0, sizeof(lifx_header));
+        packet->size = sizeof(lifx_header);
+        packet->type = 2;
+        packet->ack_required = 0;
+        packet->res_required = 0;
+        packet->sequence = seq;
+        packet->source = 666;
+        packet->protocol = _byteswap_ushort(0x34);
+
+        memcpy(ptr,reinterpret_cast<char*>(packet), packet->size);
+    }
+
+    void LIFXController::Discover()
 	{
 		int iResult;
 		addr.sin_addr.s_addr = INADDR_BROADCAST;
@@ -254,7 +267,9 @@ namespace LIFX
 		packet->type = 2;
 		packet->protocol = _byteswap_ushort(0x34);
 
-		iResult = sendto(bcast_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+        auto discoveryPacket = reinterpret_cast<const char*>(packet);
+
+		iResult = sendto(bcast_socket, discoveryPacket, sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
 
 		auto recvbuflen = 512;
 		char recvbuf[NUM_LAMPS][512];
@@ -300,7 +315,7 @@ namespace LIFX
 		site_address[14] = ':';
 		sprintf(&site_address[15], "%02X", temp[21]);
 
-		auto site_address_proper = StringToMac(site_address);
+		auto site_address_proper = *StringToMacPtr(site_address);
 
         bulbs.clear();
 
@@ -313,6 +328,23 @@ namespace LIFX
 			wcscpy(bulbs[i].group, GetGroup(bulbs[i]).c_str());
 		}
 	}
+
+    void LIFXController::GetLabelPacket(uint64_t site_address, uint8_t seq, void* ptr)
+    {
+        auto packet = new lifx_header();
+        memset(packet, 0, sizeof(lifx_header));
+        packet->size = sizeof(lifx_header);
+        packet->type = 23;
+        packet->ack_required = 0;
+        packet->res_required = 0;
+        packet->sequence = seq;
+        packet->source = 666;
+        packet->protocol = _byteswap_ushort(0x34);
+
+        FormMac(packet->site, site_address);
+
+        memcpy(ptr, reinterpret_cast<char*>(packet), packet->size);
+    }
 
 	wstring LIFXController::GetLabel(const lifx_bulb bulb)
 	{
@@ -441,12 +473,13 @@ namespace LIFX
 
 	void LIFXController::FormMac(uint8_t* target, uint64_t value)
 	{
-		target[0] = uint8_t((value >> 40) & 0xFF);
-		target[1] = uint8_t((value >> 32) & 0xFF);
-		target[2] = uint8_t((value >> 24) & 0xFF);
-		target[3] = uint8_t((value >> 16) & 0xFF);
-		target[4] = uint8_t((value >> 8) & 0xFF);
-		target[5] = uint8_t((value)& 0xFF);
+        // ignoring two zero bytes at the end because of Converter.ToInt64()
+		target[0] = uint8_t((value >> 56) & 0xFF);
+		target[1] = uint8_t((value >> 48) & 0xFF);
+		target[2] = uint8_t((value >> 40) & 0xFF);
+		target[3] = uint8_t((value >> 32) & 0xFF);
+		target[4] = uint8_t((value >> 24) & 0xFF);
+		target[5] = uint8_t((value >> 16) & 0xFF);
 	}
 
 	uint64_t LIFXController::StringToMac(const char* s)
@@ -466,8 +499,30 @@ namespace LIFX
 					uint64_t(a[4]) << 8 |
 					uint64_t(a[5]);
 
+        auto i = sizeof(mac);
+
 		return mac;
 	}
+
+    uint64_t * LIFXController::StringToMacPtr(const char *s)
+    {
+        unsigned char* a = new unsigned char[256];
+        auto last = -1;
+        auto rc = sscanf(s, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx%n",
+            a + 0, a + 1, a + 2, a + 3, a + 4, a + 5,
+            &last);
+        if (rc != 6 || strlen(s) != last)
+            return nullptr;
+
+        auto mac = uint64_t(a[0]) << 40 |
+            uint64_t(a[1]) << 32 |
+            uint64_t(a[2]) << 24 |
+            uint64_t(a[3]) << 16 |
+            uint64_t(a[4]) << 8 |
+            uint64_t(a[5]);
+
+        return &mac;
+    }
 
 	uint64_t LIFXController::GetMacFromIP(char* ip)
 	{
@@ -497,6 +552,6 @@ namespace LIFX
 			strncat(mac_string, temp_mac, strlen(temp_mac));
 		}
 
-		return StringToMac(mac_string);
+		return *StringToMacPtr(mac_string);
 	}
 }

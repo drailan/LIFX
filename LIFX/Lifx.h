@@ -12,6 +12,9 @@ namespace LIFX
 	class LIFXEntry
 	{
 		public:
+            static void GetDiscoveryPacket(uint8_t, void*);
+            static void GetLabelPacket(uint64_t, uint8_t, void*);
+
 			static void Discover();
 			static bool PopulateLabels(wchar_t**);
 			static bool PopulateGroups(wchar_t**);
@@ -23,6 +26,9 @@ namespace LIFX
 			static LIFXController* getInstance(void);
 			static LIFXController* instance;
 	};
+
+    extern "C" { LIFX_API inline void GetDiscoveryPacket(uint8_t s, void* ptr) { LIFXEntry::GetDiscoveryPacket(s, ptr); }}
+    extern "C" { LIFX_API inline void GetLabelPacket(uint64_t s, uint8_t seq, void* ptr) { LIFXEntry::GetLabelPacket(s, seq, ptr); }}
 
 	extern "C" { LIFX_API inline void Discover() { LIFXEntry::Discover(); }}
 	extern "C" { LIFX_API inline void GetLabels(wchar_t** s) { LIFXEntry::PopulateLabels(s); } }

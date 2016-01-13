@@ -1,7 +1,13 @@
-﻿using System;
+﻿using LIFXSeeSharp.Helpers;
+using LIFXSeeSharp.Network;
+using LIFXSeeSharp.Packet;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -14,14 +20,20 @@ using System.Threading.Tasks;
 
 namespace LIFXSeeSharp
 {
-	public class LifxController
+    public class LifxController
 	{
 		private static readonly int NUM_BULBS = 4;
 
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void Discover();
 
-		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void GetDiscoveryPacket([In] byte seq, [Out] byte[] packet);
+
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void GetLabelPacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
+
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool GetLabels([Out] IntPtr[] labels);
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
@@ -41,24 +53,102 @@ namespace LIFXSeeSharp
 
 		public List<LifxBulb> Bulbs { get; set; }
 
+        private NetworkManager _networkManager;
+        private Subject<LifxBulb> _discoverySubject;
+
 		public LifxController()
-        { }
+        {
+            _networkManager = new NetworkManager();
+            _discoverySubject = new Subject<LifxBulb>();
 
-		public async Task RunInitialDiscovery()
+            InitObservableProperties();
+        }
+
+        private void InitObservableProperties()
+        {
+            _networkManager.UdpListener()
+                    .ObserveOn(NewThreadScheduler.Default)
+                    .Do(packet =>
+                    {
+                        Console.WriteLine(packet.ToString());
+
+                        var discoveryPacket = packet as DiscoveryPacket;
+                        if (discoveryPacket != null)
+                        {
+                            var duplicate = Bulbs.Any(b => b.IP.Equals(discoveryPacket.IP));
+
+                            if (!duplicate)
+                            {
+                                var bulb = new LifxBulb()
+                                {
+                                    Mac = discoveryPacket.Mac,
+                                    IP = discoveryPacket.IP,
+                                    SiteAddress = discoveryPacket.Site
+                                };
+
+                                Bulbs.Add(bulb);
+                                _discoverySubject.OnNext(bulb);
+                            }
+                        }
+                        else
+                        {
+                            var basePacket = packet as BasePacket;
+                            var bulb = Bulbs.Where(b => b.IP == basePacket.IP).FirstOrDefault();
+                        }
+                    })
+                    .Subscribe();
+        }
+
+        public IObservable<LifxBulb> ObserveBulbDiscovery()
+        {
+            return _discoverySubject;
+        }
+
+		public void RunInitialDiscovery()
 		{
-			Discover();
-
-			if (Bulbs == null)
+            if (Bulbs == null)
             {
                 Bulbs = new List<LifxBulb>();
             }
 
             Bulbs.Clear();
 
-			var labels = new IntPtr[NUM_BULBS];
+            var data = new byte[PacketSize.DISCOVERY];
+            var seq = SequenceGenerator.GetNext();
+            GetDiscoveryPacket(seq, data);
+
+            _networkManager.Discover(data, seq);
+
+            //_nm.Discover(data, seq)
+            //    .Skip(1)
+            //    .Subscribe(result =>
+            //        {
+            //            CreateBulbFromUdpResult(result);
+            //        },
+            //        () =>
+            //        {
+            //            Bulbs.ForEach(b =>
+            //            {
+            //                seq = SequenceGenerator.GetNext();
+
+            //                data = new byte[PacketSize.LABEL];
+            //                GetLabelPacket(b.SiteAddress, seq, data);
+            //                _nm.GetLabel(data, seq, b.IP)
+            //                    .Subscribe(result =>
+            //                    {
+            //                        var labelBytes = new byte[32];
+            //                        Array.Copy(result.Buffer, 36, labelBytes, 0, 32);
+            //                        b.Label = Encoding.UTF8.GetString(labelBytes);
+            //                    });
+            //            });
+            //        });
+
+            /*
+            var labels = new IntPtr[NUM_BULBS];
             var groups = new IntPtr[NUM_BULBS];
 
-            for (var i = 0; i < labels.Length; ++i) {
+            for (var i = 0; i < labels.Length; ++i)
+            {
                 labels[i] = Marshal.AllocHGlobal(256);
                 groups[i] = Marshal.AllocHGlobal(256);
             }
@@ -68,7 +158,8 @@ namespace LIFXSeeSharp
 
             var label_names = new string[labels.Length];
             var group_names = new string[groups.Length];
-            for (var i = 0; i < labels.Length; ++i) {
+            for (var i = 0; i < labels.Length; ++i)
+            {
                 label_names[i] = Marshal.PtrToStringUni(labels[i]);
                 group_names[i] = Marshal.PtrToStringUni(groups[i]);
                 Marshal.FreeHGlobal(labels[i]);
@@ -81,6 +172,7 @@ namespace LIFXSeeSharp
                     Group = group_names[i]
                 });
             }
+            */
         }
 
 		public async Task GetLightState(string label = null)
@@ -91,21 +183,15 @@ namespace LIFXSeeSharp
 					.ToList()
 					.ForEach(b => 
 					{
-                        try {
-                            var state = new uint[6];
-                            GetLightState(b.Label, state);
+                        var state = new uint[6];
+                        GetLightState(b.Label, state);
 
-                            b.Hue = (float)state[0] * 360 / ushort.MaxValue;
-                            b.Saturation = (float)state[1] / ushort.MaxValue;
-                            b.Brightness = (float)state[2] / ushort.MaxValue;
-                            b.Kelvin = (ushort)state[3];
-                            b.Dim = (ushort)state[4];
-                            b.Power = (ushort)state[5];
-                        }
-                        catch
-                        {
-                            Debugger.Break();
-                        }
+                        b.Hue = (float)state[0] * 360 / ushort.MaxValue;
+                        b.Saturation = (float)state[1] / ushort.MaxValue;
+                        b.Brightness = (float)state[2] / ushort.MaxValue;
+                        b.Kelvin = (ushort)state[3];
+                        b.Dim = (ushort)state[4];
+                        b.Power = (ushort)state[5];
 					});
 			}
 			else

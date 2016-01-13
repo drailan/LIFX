@@ -24,7 +24,6 @@ namespace LIFXGui.ViewModels
 
         public BulbViewModel(LifxBulb b, LifxController controller)
         {
-            Console.WriteLine("------------------- in bulb view model constructor -----------------");
             Bulb = b;
             _controller = controller;
 
@@ -38,7 +37,7 @@ namespace LIFXGui.ViewModels
 
         public string Group
         {
-            get { Console.WriteLine("------------------- in Group -----------------");  return _bulb.Group; }
+            get { return _bulb.Group; }
             set
             {
                 if (_bulb.Group != value)
@@ -51,7 +50,7 @@ namespace LIFXGui.ViewModels
 
         public string Label
         {
-            get { Console.WriteLine("------------------- in Label -----------------");  return _bulb.Label; }
+            get { return _bulb.Label; }
             set {
                 if (_bulb.Label != value) {
                     _bulb.Label = value;
@@ -62,7 +61,7 @@ namespace LIFXGui.ViewModels
 
         public float Hue
         {
-            get { Console.WriteLine("------------------- in Hue -----------------");  return _bulb.Hue; }
+            get { return _bulb.Hue; }
             set {
                 if (_bulb.Hue != value)
                 {
@@ -74,7 +73,7 @@ namespace LIFXGui.ViewModels
 
         public float Saturation
         {
-            get { Console.WriteLine("------------------- in Saturation -----------------");  return _bulb.Saturation; }
+            get { return _bulb.Saturation; }
             set
             {
                 if (_bulb.Saturation != value)
@@ -86,7 +85,7 @@ namespace LIFXGui.ViewModels
         }
         public float Brightness
         {
-            get { Console.WriteLine("------------------- in Brightness -----------------");  return _bulb.Brightness; }
+            get { return _bulb.Brightness; }
             set
             {
                 if (_bulb.Brightness != value)
@@ -99,7 +98,7 @@ namespace LIFXGui.ViewModels
 
         public int Kelvin
         {
-            get { Console.WriteLine("------------------- in Kelvin -----------------");  return (int) _bulb.Kelvin; }
+            get { return (int) _bulb.Kelvin; }
             set {
                 if (_bulb.Kelvin != value)
                 {
@@ -111,7 +110,7 @@ namespace LIFXGui.ViewModels
 
         public ushort Dim
         {
-            get { Console.WriteLine("------------------- in Dim -----------------");  return _bulb.Dim; }
+            get { return _bulb.Dim; }
             set
             {
                 if (_bulb.Dim != value)
@@ -123,7 +122,7 @@ namespace LIFXGui.ViewModels
         }
         public ushort Power
         {
-            get { Console.WriteLine("------------------- in Power -----------------");  return _bulb.Power; }
+            get { return _bulb.Power; }
             set
             {
                 if (_bulb.Power != value)

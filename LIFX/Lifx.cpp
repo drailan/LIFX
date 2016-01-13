@@ -19,13 +19,23 @@ namespace LIFX
 		return instance;
 	}
 
-	void LIFXEntry::Discover() { 
+    void LIFXEntry::GetDiscoveryPacket(uint8_t s, void* ptr)
+    {
+        getInstance()->GetDiscoveryPacket(s, ptr);
+    }
+
+    void LIFXEntry::GetLabelPacket(uint64_t s, uint8_t seq, void* ptr)
+    {
+        getInstance()->GetLabelPacket(s, seq, ptr);
+    }
+
+    void LIFXEntry::Discover() {
         getInstance()->Discover(); 
     }
 
 	void LIFXEntry::SetPower(wstring s, uint16_t p)	
     { 
-        getInstance()->SetPower(s.c_str(), p); 
+        getInstance()->SetPower(s.c_str(), p);
     }
 
     void LIFXEntry::GetPower(wstring s, uint16_t* state)
