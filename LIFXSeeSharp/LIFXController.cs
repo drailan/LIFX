@@ -21,11 +21,11 @@ using System.Threading.Tasks;
 namespace LIFXSeeSharp
 {
     public class LifxController
-	{
-		private static readonly int NUM_BULBS = 4;
+    {
+        private static readonly int NUM_BULBS = 4;
 
-		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void Discover();
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void Discover();
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void GetDiscoveryPacket([In] byte seq, [Out] byte[] packet);
@@ -34,29 +34,29 @@ namespace LIFXSeeSharp
         private static extern void GetLabelPacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-		private static extern bool GetLabels([Out] IntPtr[] labels);
+        private static extern bool GetLabels([Out] IntPtr[] labels);
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern bool GetGroups([Out] IntPtr[] labels);
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-		private static extern bool SetPower(string label, ushort onoff);
+        private static extern bool SetPower(string label, ushort onoff);
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern bool GetPower(string label, [Out] ushort[] state);
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-		private static extern bool SetLightColor(string label, ushort[] state);
+        private static extern bool SetLightColor(string label, ushort[] state);
 
-		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-		private static extern bool GetLightState(string label, [Out] uint[] state);
+        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern bool GetLightState(string label, [Out] uint[] state);
 
-		public List<LifxBulb> Bulbs { get; set; }
+        public List<LifxBulb> Bulbs { get; set; }
 
         private NetworkManager _networkManager;
         private Subject<LifxBulb> _discoverySubject;
 
-		public LifxController()
+        public LifxController()
         {
             _networkManager = new NetworkManager();
             _discoverySubject = new Subject<LifxBulb>();
@@ -104,8 +104,8 @@ namespace LIFXSeeSharp
             return _discoverySubject;
         }
 
-		public void RunInitialDiscovery()
-		{
+        public void RunInitialDiscovery()
+        {
             if (Bulbs == null)
             {
                 Bulbs = new List<LifxBulb>();
@@ -175,14 +175,14 @@ namespace LIFXSeeSharp
             */
         }
 
-		public async Task GetLightState(string label = null)
-		{
-			if (label != null)
-			{
-				Bulbs.Where(b => b.Label == label)
-					.ToList()
-					.ForEach(b => 
-					{
+        public async Task GetLightState(string label = null)
+        {
+            if (label != null)
+            {
+                Bulbs.Where(b => b.Label == label)
+                    .ToList()
+                    .ForEach(b => 
+                    {
                         var state = new uint[6];
                         GetLightState(b.Label, state);
 
@@ -192,12 +192,12 @@ namespace LIFXSeeSharp
                         b.Kelvin = (ushort)state[3];
                         b.Dim = (ushort)state[4];
                         b.Power = (ushort)state[5];
-					});
-			}
-			else
-			{
-				Bulbs.ForEach(b =>
-						{
+                    });
+            }
+            else
+            {
+                Bulbs.ForEach(b =>
+                        {
                             try {
                                 var state = new uint[6];
                                 GetLightState(b.Label, state);
@@ -213,63 +213,63 @@ namespace LIFXSeeSharp
                             {
                                 Debugger.Break();
                             }
-						});
-			}
-		}
+                        });
+            }
+        }
 
-		public async Task SetLightState(float hue, float saturation, float brightness, ushort kelvin, ushort dim, string target = null)
-		{
-			if (kelvin > 9000 || kelvin < 2500) {
-				throw new ArgumentOutOfRangeException(nameof(kelvin),
-													kelvin,
-													"Kelvin should be betweeen 2500 & 9000");
-			}
+        public async Task SetLightState(float hue, float saturation, float brightness, ushort kelvin, ushort dim, string target = null)
+        {
+            if (kelvin > 9000 || kelvin < 2500) {
+                throw new ArgumentOutOfRangeException(nameof(kelvin),
+                                                    kelvin,
+                                                    "Kelvin should be betweeen 2500 & 9000");
+            }
 
-			var fhue = hue % 360;
-			var fsaturation = saturation % 100;
-			var fbrightness = brightness % 100;
+            var fhue = hue % 360;
+            var fsaturation = saturation % 100;
+            var fbrightness = brightness % 100;
 
-			var state = new ushort[5];
+            var state = new ushort[5];
 
-			state[0] = Convert.ToUInt16(fhue * ushort.MaxValue / 360); // hue * max / 360
-			state[1] = Convert.ToUInt16(fsaturation * ushort.MaxValue); // %
-			state[2] = Convert.ToUInt16(fbrightness * ushort.MaxValue); // %
-			state[3] = kelvin; // between 2500 & 9000
-			state[4] = dim;
+            state[0] = Convert.ToUInt16(fhue * ushort.MaxValue / 360); // hue * max / 360
+            state[1] = Convert.ToUInt16(fsaturation * ushort.MaxValue); // %
+            state[2] = Convert.ToUInt16(fbrightness * ushort.MaxValue); // %
+            state[3] = kelvin; // between 2500 & 9000
+            state[4] = dim;
 
-			if (target != null)
-			{
-				Bulbs.Where(b => b.Label == target)
+            if (target != null)
+            {
+                Bulbs.Where(b => b.Label == target)
                      .ToList()
                      .ForEach(b => SetLightColor(b.Label, state));
-			}
-			else
-			{
-				Bulbs.ForEach(b => SetLightColor(b.Label, state));
-			}
-		}
+            }
+            else
+            {
+                Bulbs.ForEach(b => SetLightColor(b.Label, state));
+            }
+        }
 
-		public async Task<ushort> SetPower(ushort onoff, string target = null)
-		{
-			if (target != null)
-			{
+        public async Task<ushort> SetPower(ushort onoff, string target = null)
+        {
+            if (target != null)
+            {
                 var bulb = Bulbs.Where(b => b.Label == target)
                       .ToList()
                       .FirstOrDefault();
                       
                 SetPower(bulb.Label, onoff);
                 return await GetPower(bulb.Label);
-			}
-			else
-			{
-				Bulbs.ForEach(/*async*/ b => {
+            }
+            else
+            {
+                Bulbs.ForEach(/*async*/ b => {
                     SetPower(b.Label, onoff);
                     //await GetPower(b.Label);
                 });
-			}
+            }
 
             return 0;
-		}
+        }
 
         public Task<ushort> GetPower(string target)
         {
@@ -287,5 +287,5 @@ namespace LIFXSeeSharp
 
             return Task.FromResult((ushort)0);
         }
-	}
+    }
 }

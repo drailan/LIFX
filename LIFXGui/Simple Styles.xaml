@@ -40,7 +40,7 @@
     </LinearGradientBrush>
 
     <!-- SelectedBackgroundBrush is used for the Selected item in ListBoxItem, ComboBoxItem-->
-    <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#DDD"/>	
+    <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#DDD"/>    
 
     <!-- Disabled Brushes are used for the Disabled look of each control -->
     <SolidColorBrush x:Key="DisabledForegroundBrush" Color="#888"/>
@@ -595,7 +595,7 @@
                             </Grid>
                         </Popup>
                     </Grid>
-                    <ControlTemplate.Triggers>						
+                    <ControlTemplate.Triggers>                        
                         <!-- This forces the DropDown to have a minimum size if it is empty -->
                         <Trigger Property="HasItems" Value="false">
                             <Setter Property="MinHeight" Value="95" TargetName="DropDownBorder"/>

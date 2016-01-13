@@ -7,17 +7,17 @@ using namespace std;
 
 namespace LIFX
 {
-	LIFXController* LIFXEntry::instance;
+    LIFXController* LIFXEntry::instance;
 
-	LIFXController* LIFXEntry::getInstance()
-	{
-		if (instance == nullptr)
-		{
-			instance = new LIFXController();
-		}
+    LIFXController* LIFXEntry::getInstance()
+    {
+        if (instance == nullptr)
+        {
+            instance = new LIFXController();
+        }
 
-		return instance;
-	}
+        return instance;
+    }
 
     void LIFXEntry::GetDiscoveryPacket(uint8_t s, void* ptr)
     {
@@ -33,7 +33,7 @@ namespace LIFX
         getInstance()->Discover(); 
     }
 
-	void LIFXEntry::SetPower(wstring s, uint16_t p)	
+    void LIFXEntry::SetPower(wstring s, uint16_t p)    
     { 
         getInstance()->SetPower(s.c_str(), p);
     }
@@ -44,50 +44,50 @@ namespace LIFX
         state[0] = power_state;
     }
 
-	void LIFXEntry::SetLightColor(wstring s, uint16_t* p)
-	{
-		getInstance()->SetLightColor(s.c_str(), p);
-	}
+    void LIFXEntry::SetLightColor(wstring s, uint16_t* p)
+    {
+        getInstance()->SetLightColor(s.c_str(), p);
+    }
 
-	bool LIFXEntry::PopulateLabels(wchar_t** names)
-	{
-		auto labels = getInstance()->GetLabels();
+    bool LIFXEntry::PopulateLabels(wchar_t** names)
+    {
+        auto labels = getInstance()->GetLabels();
 
-		if (labels.size() == 0) return FALSE;
+        if (labels.size() == 0) return FALSE;
 
-		for (auto i = 0; i < labels.size(); ++i) {
+        for (auto i = 0; i < labels.size(); ++i) {
             wcscpy(names[i], labels.at(i).c_str());
-		}
+        }
 
         labels.clear();
 
-		return TRUE;
-	}
+        return TRUE;
+    }
 
-	bool LIFXEntry::PopulateGroups(wchar_t** names)
-	{
-		auto labels = getInstance()->GetGroups();
+    bool LIFXEntry::PopulateGroups(wchar_t** names)
+    {
+        auto labels = getInstance()->GetGroups();
 
-		if (labels.size() == 0) return FALSE;
+        if (labels.size() == 0) return FALSE;
 
-		for (auto i = 0; i < labels.size(); ++i) {
+        for (auto i = 0; i < labels.size(); ++i) {
             wcscpy(names[i], labels.at(i).c_str());
-		}
+        }
 
         labels.clear();
 
-		return TRUE;
-	}
+        return TRUE;
+    }
 
-	bool LIFXEntry::GetLightState(wstring s, uint32_t* p)
-	{
-		auto light_state = getInstance()->GetLightState(s.c_str());
-		p[0] = light_state.hue;
-		p[1] = light_state.saturation;
-		p[2] = light_state.brightness;
-		p[3] = light_state.kelvin;
-		p[4] = light_state.dim;
-		p[5] = light_state.power;
-		return TRUE;
-	}
+    bool LIFXEntry::GetLightState(wstring s, uint32_t* p)
+    {
+        auto light_state = getInstance()->GetLightState(s.c_str());
+        p[0] = light_state.hue;
+        p[1] = light_state.saturation;
+        p[2] = light_state.brightness;
+        p[3] = light_state.kelvin;
+        p[4] = light_state.dim;
+        p[5] = light_state.power;
+        return TRUE;
+    }
 }

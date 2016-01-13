@@ -5,8 +5,8 @@ using System.Text;
 
 namespace LIFXSeeSharp
 {
-	public class LifxBulb : INotifyPropertyChanged
-	{
+    public class LifxBulb : INotifyPropertyChanged
+    {
         private ulong _mac;
         private ulong _site;
         private IPAddress _ip;
@@ -171,17 +171,17 @@ namespace LIFXSeeSharp
         }
 
         public LifxBulb(string label = "")
-		{
-			Label = label;
-		}
+        {
+            Label = label;
+        }
 
-		public override string ToString()
-		{
-			var sb = new StringBuilder();
-			sb.AppendFormat("Label: {0}\n\tHue: {1}\n\tSaturation: {2}\n\tBrightNess: {3}\n\tKelvin: {4}\n\tDim: {5}\n\tPower: {6}\nIP: {7}\n",
-				Label, Hue, Saturation, Brightness, Kelvin, Dim, Power, IP.ToString());
-			return sb.ToString();
-		}
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("Label: {0}\n\tHue: {1}\n\tSaturation: {2}\n\tBrightNess: {3}\n\tKelvin: {4}\n\tDim: {5}\n\tPower: {6}\nIP: {7}\n",
+                Label, Hue, Saturation, Brightness, Kelvin, Dim, Power, IP.ToString());
+            return sb.ToString();
+        }
 
         public override bool Equals(object obj)
         {
