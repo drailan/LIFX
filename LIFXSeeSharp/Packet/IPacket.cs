@@ -8,5 +8,6 @@ namespace LIFXSeeSharp.Packet
 {
     interface IPacket
     {
+        byte Sequence { get; }
     }
 }

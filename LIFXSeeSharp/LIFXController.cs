@@ -22,8 +22,6 @@ namespace LIFXSeeSharp
 {
     public class LifxController
     {
-        private static readonly int NUM_BULBS = 4;
-
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void Discover();
 
@@ -33,8 +31,8 @@ namespace LIFXSeeSharp
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void GetLabelPacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
 
-        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        private static extern bool GetLabels([Out] IntPtr[] labels);
+        //[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        //private static extern bool GetLabels([Out] IntPtr[] labels);
 
         [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern bool GetGroups([Out] IntPtr[] labels);
@@ -55,11 +53,13 @@ namespace LIFXSeeSharp
 
         private NetworkManager _networkManager;
         private Subject<LifxBulb> _discoverySubject;
+        private Subject<LifxBulb> _labelSubject;
 
         public LifxController()
         {
             _networkManager = new NetworkManager();
             _discoverySubject = new Subject<LifxBulb>();
+            _labelSubject = new Subject<LifxBulb>();
 
             InitObservableProperties();
         }
@@ -67,36 +67,46 @@ namespace LIFXSeeSharp
         private void InitObservableProperties()
         {
             _networkManager.UdpListener()
-                    .ObserveOn(NewThreadScheduler.Default)
-                    .Do(packet =>
+                .ObserveOn(NewThreadScheduler.Default)
+                .Where(packet => packet.Sequence != 0)
+                .Do(packet =>
+                {
+                    Console.WriteLine(packet.ToString());
+
+                    var discoveryPacket = packet as DiscoveryPacket;
+                    if (discoveryPacket != null)
                     {
-                        Console.WriteLine(packet.ToString());
+                        var duplicate = Bulbs.Any(b => b.IP.Equals(discoveryPacket.IP));
 
-                        var discoveryPacket = packet as DiscoveryPacket;
-                        if (discoveryPacket != null)
+                        if (!duplicate)
                         {
-                            var duplicate = Bulbs.Any(b => b.IP.Equals(discoveryPacket.IP));
-
-                            if (!duplicate)
+                            var bulb = new LifxBulb()
                             {
-                                var bulb = new LifxBulb()
-                                {
-                                    Mac = discoveryPacket.Mac,
-                                    IP = discoveryPacket.IP,
-                                    SiteAddress = discoveryPacket.Site
-                                };
+                                Mac = discoveryPacket.Mac,
+                                IP = discoveryPacket.IP,
+                                SiteAddress = discoveryPacket.Site
+                            };
 
-                                Bulbs.Add(bulb);
-                                _discoverySubject.OnNext(bulb);
-                            }
+                            Bulbs.Add(bulb);
+                            _discoverySubject.OnNext(bulb);
+                            _labelSubject.OnNext(bulb);
                         }
-                        else
-                        {
-                            var basePacket = packet as BasePacket;
-                            var bulb = Bulbs.Where(b => b.IP == basePacket.IP).FirstOrDefault();
-                        }
-                    })
-                    .Subscribe();
+                    }
+                    else
+                    {
+                        var basePacket = packet as BasePacket;
+                        var bulb = Bulbs.Where(b => b.IP == basePacket.IP).FirstOrDefault();
+                    }
+                })
+                .Subscribe();
+
+            _labelSubject.Subscribe(bulb =>
+                {
+                    var data = new byte[PacketSize.LABEL];
+                    var seq = SequenceGenerator.GetNext();
+                    GetLabelPacket(bulb.SiteAddress, seq, data);
+                    _networkManager.GetLabel(data, seq, bulb.IP);
+                });
         }
 
         public IObservable<LifxBulb> ObserveBulbDiscovery()
@@ -118,61 +128,6 @@ namespace LIFXSeeSharp
             GetDiscoveryPacket(seq, data);
 
             _networkManager.Discover(data, seq);
-
-            //_nm.Discover(data, seq)
-            //    .Skip(1)
-            //    .Subscribe(result =>
-            //        {
-            //            CreateBulbFromUdpResult(result);
-            //        },
-            //        () =>
-            //        {
-            //            Bulbs.ForEach(b =>
-            //            {
-            //                seq = SequenceGenerator.GetNext();
-
-            //                data = new byte[PacketSize.LABEL];
-            //                GetLabelPacket(b.SiteAddress, seq, data);
-            //                _nm.GetLabel(data, seq, b.IP)
-            //                    .Subscribe(result =>
-            //                    {
-            //                        var labelBytes = new byte[32];
-            //                        Array.Copy(result.Buffer, 36, labelBytes, 0, 32);
-            //                        b.Label = Encoding.UTF8.GetString(labelBytes);
-            //                    });
-            //            });
-            //        });
-
-            /*
-            var labels = new IntPtr[NUM_BULBS];
-            var groups = new IntPtr[NUM_BULBS];
-
-            for (var i = 0; i < labels.Length; ++i)
-            {
-                labels[i] = Marshal.AllocHGlobal(256);
-                groups[i] = Marshal.AllocHGlobal(256);
-            }
-
-            GetLabels(labels);
-            GetGroups(groups);
-
-            var label_names = new string[labels.Length];
-            var group_names = new string[groups.Length];
-            for (var i = 0; i < labels.Length; ++i)
-            {
-                label_names[i] = Marshal.PtrToStringUni(labels[i]);
-                group_names[i] = Marshal.PtrToStringUni(groups[i]);
-                Marshal.FreeHGlobal(labels[i]);
-                Marshal.FreeHGlobal(groups[i]);
-                labels[i] = IntPtr.Zero;
-                groups[i] = IntPtr.Zero;
-
-                Bulbs.Add(new LifxBulb(label_names[i])
-                {
-                    Group = group_names[i]
-                });
-            }
-            */
         }
 
         public async Task GetLightState(string label = null)
