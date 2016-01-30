@@ -63,9 +63,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bulb\IBulb.cs" />
     <Compile Include="Extensions\Uint16Extensions.cs" />
     <Compile Include="Helpers\PacketSize.cs" />
-    <Compile Include="LIFXBulb.cs" />
+    <Compile Include="Bulb\LIFXBulb.cs" />
     <Compile Include="LIFXController.cs" />
     <Compile Include="Network\NetworkManager.cs" />
     <Compile Include="Packet\DiscoveryPacket.cs" />

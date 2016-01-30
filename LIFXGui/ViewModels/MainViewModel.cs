@@ -27,9 +27,6 @@ namespace LIFXGui.ViewModels
             _bulbs = new ObservableCollection<BulbViewModel>();
 
             InitObservableProperties();
-
-            //Task t = InitializeAsync();
-
         }
 
         private void InitObservableProperties()
@@ -46,7 +43,6 @@ namespace LIFXGui.ViewModels
         public void Initialize()
         {
             _controller.RunInitialDiscovery();
-            //await _controller.GetLightState();
         }
 
         public ICommand RefreshCommand

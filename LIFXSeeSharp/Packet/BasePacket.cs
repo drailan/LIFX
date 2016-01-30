@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using LIFXSeeSharp.Bulb;
 
 namespace LIFXSeeSharp.Packet
 {
@@ -46,6 +47,10 @@ namespace LIFXSeeSharp.Packet
         {
             var sb = new StringBuilder();
             return sb.AppendFormat("Base packet: IP {0}, Sequence {1}", IP.ToString(), Sequence).ToString();
+        }
+
+        public virtual void ProcessBulb(IBulb bulb)
+        {
         }
     }
 }

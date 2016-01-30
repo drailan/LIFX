@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using LIFXSeeSharp;
+﻿using LIFXSeeSharp;
 using System.Windows.Input;
 using LIFXGui.Commands;
+using LIFXSeeSharp.Bulb;
 
 namespace LIFXGui.ViewModels
 {
@@ -138,11 +132,7 @@ namespace LIFXGui.ViewModels
             get
             {
                 return new CommandBase(() => {
-                    var power = (ushort) ((Power > 0) ? 0 : 1);
-                    var newPower = _controller.SetPower(power, Label);
-                    Power = power;
-                    //newPower.Wait();
-                    //Power = newPower.Result;
+
                 });
             }
         }

@@ -18,7 +18,6 @@ namespace LIFXSeeSharp.Packet
 
         public DiscoveryPacket(byte[] payload, IPAddress ip) : base(payload, ip)
         {
-                        
         }
 
         protected override void ProcessPayload()

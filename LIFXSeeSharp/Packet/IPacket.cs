@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LIFXSeeSharp.Bulb;
 
 namespace LIFXSeeSharp.Packet
 {
     interface IPacket
     {
         byte Sequence { get; }
+        void ProcessBulb(IBulb bulb);
     }
 }

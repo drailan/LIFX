@@ -1,4 +1,5 @@
-﻿using LIFXSeeSharp.Helpers;
+﻿using LIFXSeeSharp.Bulb;
+using LIFXSeeSharp.Helpers;
 using LIFXSeeSharp.Network;
 using LIFXSeeSharp.Packet;
 using System;
@@ -55,11 +56,14 @@ namespace LIFXSeeSharp
         private Subject<LifxBulb> _discoverySubject;
         private Subject<LifxBulb> _labelSubject;
 
+        private List<KeyValuePair<byte, LifxBulb>> _sentPackets;
+
         public LifxController()
         {
             _networkManager = new NetworkManager();
             _discoverySubject = new Subject<LifxBulb>();
             _labelSubject = new Subject<LifxBulb>();
+            _sentPackets = new List<KeyValuePair<byte, LifxBulb>>();
 
             InitObservableProperties();
         }
@@ -68,11 +72,13 @@ namespace LIFXSeeSharp
         {
             _networkManager.UdpListener()
                 .ObserveOn(NewThreadScheduler.Default)
+                .Do(p =>
+                {
+                    Console.WriteLine(p.ToString());
+                })
                 .Where(packet => packet.Sequence != 0)
                 .Do(packet =>
                 {
-                    Console.WriteLine(packet.ToString());
-
                     var discoveryPacket = packet as DiscoveryPacket;
                     if (discoveryPacket != null)
                     {
@@ -94,8 +100,10 @@ namespace LIFXSeeSharp
                     }
                     else
                     {
-                        var basePacket = packet as BasePacket;
-                        var bulb = Bulbs.Where(b => b.IP == basePacket.IP).FirstOrDefault();
+                        var sentPacket = _sentPackets.Where(p => p.Key == packet.Sequence).FirstOrDefault();
+                        packet.ProcessBulb(sentPacket.Value);
+                        _sentPackets.Remove(sentPacket);
+
                     }
                 })
                 .Subscribe();
@@ -105,6 +113,7 @@ namespace LIFXSeeSharp
                     var data = new byte[PacketSize.LABEL];
                     var seq = SequenceGenerator.GetNext();
                     GetLabelPacket(bulb.SiteAddress, seq, data);
+                    _sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
                     _networkManager.GetLabel(data, seq, bulb.IP);
                 });
         }
@@ -127,120 +136,8 @@ namespace LIFXSeeSharp
             var seq = SequenceGenerator.GetNext();
             GetDiscoveryPacket(seq, data);
 
+            _sentPackets.Add(new KeyValuePair<byte,LifxBulb>(seq, null));
             _networkManager.Discover(data, seq);
-        }
-
-        public async Task GetLightState(string label = null)
-        {
-            if (label != null)
-            {
-                Bulbs.Where(b => b.Label == label)
-                    .ToList()
-                    .ForEach(b => 
-                    {
-                        var state = new uint[6];
-                        GetLightState(b.Label, state);
-
-                        b.Hue = (float)state[0] * 360 / ushort.MaxValue;
-                        b.Saturation = (float)state[1] / ushort.MaxValue;
-                        b.Brightness = (float)state[2] / ushort.MaxValue;
-                        b.Kelvin = (ushort)state[3];
-                        b.Dim = (ushort)state[4];
-                        b.Power = (ushort)state[5];
-                    });
-            }
-            else
-            {
-                Bulbs.ForEach(b =>
-                        {
-                            try {
-                                var state = new uint[6];
-                                GetLightState(b.Label, state);
-
-                                b.Hue = (float)state[0] * 360 / ushort.MaxValue;
-                                b.Saturation = (float)state[1] / ushort.MaxValue;
-                                b.Brightness = (float)state[2] / ushort.MaxValue;
-                                b.Kelvin = (ushort)state[3];
-                                b.Dim = (ushort)state[4];
-                                b.Power = (ushort)state[5];
-                            } 
-                            catch
-                            {
-                                Debugger.Break();
-                            }
-                        });
-            }
-        }
-
-        public async Task SetLightState(float hue, float saturation, float brightness, ushort kelvin, ushort dim, string target = null)
-        {
-            if (kelvin > 9000 || kelvin < 2500) {
-                throw new ArgumentOutOfRangeException(nameof(kelvin),
-                                                    kelvin,
-                                                    "Kelvin should be betweeen 2500 & 9000");
-            }
-
-            var fhue = hue % 360;
-            var fsaturation = saturation % 100;
-            var fbrightness = brightness % 100;
-
-            var state = new ushort[5];
-
-            state[0] = Convert.ToUInt16(fhue * ushort.MaxValue / 360); // hue * max / 360
-            state[1] = Convert.ToUInt16(fsaturation * ushort.MaxValue); // %
-            state[2] = Convert.ToUInt16(fbrightness * ushort.MaxValue); // %
-            state[3] = kelvin; // between 2500 & 9000
-            state[4] = dim;
-
-            if (target != null)
-            {
-                Bulbs.Where(b => b.Label == target)
-                     .ToList()
-                     .ForEach(b => SetLightColor(b.Label, state));
-            }
-            else
-            {
-                Bulbs.ForEach(b => SetLightColor(b.Label, state));
-            }
-        }
-
-        public async Task<ushort> SetPower(ushort onoff, string target = null)
-        {
-            if (target != null)
-            {
-                var bulb = Bulbs.Where(b => b.Label == target)
-                      .ToList()
-                      .FirstOrDefault();
-                      
-                SetPower(bulb.Label, onoff);
-                return await GetPower(bulb.Label);
-            }
-            else
-            {
-                Bulbs.ForEach(/*async*/ b => {
-                    SetPower(b.Label, onoff);
-                    //await GetPower(b.Label);
-                });
-            }
-
-            return 0;
-        }
-
-        public Task<ushort> GetPower(string target)
-        {
-            if (target != null)
-            {
-                var power = new ushort[1];
-                var bulb = Bulbs.Where(b => b.Label == target)
-                    .ToList()
-                    .FirstOrDefault();
-                GetPower(bulb.Label, power);
-                bulb.Power = power[0];
-
-                return Task.FromResult((ushort)power[0]);
-            }
-
-            return Task.FromResult((ushort)0);
         }
     }
 }
