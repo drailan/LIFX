@@ -1,5 +1,6 @@
 ﻿using LIFXSeeSharp.Extensions;
 using LIFXSeeSharp.Helpers;
+using LIFXSeeSharp.Logging;
 using LIFXSeeSharp.Packet;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,8 @@ namespace LIFXSeeSharp.Network
 {
     class NetworkManager
     {
+        private readonly string TAG = "NetworkManager";
+
         private int _port;
         private UdpClient _udpSender;
         private IPEndPoint _bcastEP;
@@ -64,6 +67,7 @@ namespace LIFXSeeSharp.Network
         {
             IPEndPoint ep = new IPEndPoint(ip, _port);
             _udpSender.Send(packet, PacketSize.LABEL, ep);
+            Log.Debug(TAG, "Sent label packet with sequence {0}", seq);
         }
     }
 }

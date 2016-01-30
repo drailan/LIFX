@@ -9,7 +9,7 @@ namespace LIFXSeeSharp.Helpers
     class SequenceGenerator
     {
         private static readonly byte _max = Byte.MaxValue;
-        private static byte _current = 250;
+        private static byte _current = 1;
 
         public static byte Current { get { return _current; } }
 

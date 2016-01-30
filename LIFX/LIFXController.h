@@ -68,7 +68,6 @@ namespace LIFX
         void GetDiscoveryPacket(uint8_t, void*);
         void GetLabelPacket(uint64_t, uint8_t, void*);
 
-        void Discover();
         std::vector<std::wstring> GetLabels();
         std::vector<std::wstring> GetGroups();
 

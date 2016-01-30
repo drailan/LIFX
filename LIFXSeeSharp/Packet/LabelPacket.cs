@@ -6,11 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using LIFXSeeSharp.Bulb;
 using System.Diagnostics;
+using LIFXSeeSharp.Logging;
 
 namespace LIFXSeeSharp.Packet
 {
     class LabelPacket : BasePacket
     {
+        private readonly string TAG = "LabelPacket";
+
         public override byte Type { get { return 0x0019; } }
         public string Label { get; private set; }
 
@@ -33,8 +36,12 @@ namespace LIFXSeeSharp.Packet
 
         public override void ProcessBulb(IBulb bulb)
         {
-            base.ProcessBulb(bulb);
-            (bulb as LifxBulb).Label = Label;
+            Log.Debug(TAG, "Processing bulb label");
+            var b = bulb as LifxBulb;
+            if (b != null)
+            {
+                b.Label = Label;
+            }
         }
 
         public override string ToString()

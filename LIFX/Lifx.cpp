@@ -29,10 +29,6 @@ namespace LIFX
         getInstance()->GetLabelPacket(s, seq, ptr);
     }
 
-    void LIFXEntry::Discover() {
-        getInstance()->Discover(); 
-    }
-
     void LIFXEntry::SetPower(wstring s, uint16_t p)    
     { 
         getInstance()->SetPower(s.c_str(), p);

@@ -15,7 +15,6 @@ namespace LIFX
             static void GetDiscoveryPacket(uint8_t, void*);
             static void GetLabelPacket(uint64_t, uint8_t, void*);
 
-            static void Discover();
             static bool PopulateLabels(wchar_t**);
             static bool PopulateGroups(wchar_t**);
             static bool GetLightState(std::wstring, uint32_t*);
@@ -30,7 +29,6 @@ namespace LIFX
     extern "C" { LIFX_API inline void GetDiscoveryPacket(uint8_t s, void* ptr) { LIFXEntry::GetDiscoveryPacket(s, ptr); }}
     extern "C" { LIFX_API inline void GetLabelPacket(uint64_t s, uint8_t seq, void* ptr) { LIFXEntry::GetLabelPacket(s, seq, ptr); }}
 
-    extern "C" { LIFX_API inline void Discover() { LIFXEntry::Discover(); }}
     extern "C" { LIFX_API inline void GetLabels(wchar_t** s) { LIFXEntry::PopulateLabels(s); } }
     extern "C" { LIFX_API inline void GetGroups(wchar_t** s) { LIFXEntry::PopulateGroups(s); } }
     extern "C" { LIFX_API inline void SetPower(const wchar_t* s, uint16_t onoff)

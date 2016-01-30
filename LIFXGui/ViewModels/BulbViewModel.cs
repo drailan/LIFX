@@ -24,10 +24,18 @@ namespace LIFXGui.ViewModels
             _bulb.PropertyChanged += _bulb_PropertyChanged;
         }
 
+        public override void Dispose()
+        {
+            _bulb.PropertyChanged -= _bulb_PropertyChanged;
+            base.Dispose();
+        }
+
         private void _bulb_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             NotifyPropertyChanged(e.PropertyName);
         }
+
+        #region properties
 
         public string Group
         {
@@ -126,6 +134,8 @@ namespace LIFXGui.ViewModels
                 }
             }
         }
+
+        #endregion properties
 
         public ICommand PowerCommand
         {

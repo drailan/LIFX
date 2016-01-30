@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace LIFXGui.ViewModels
 {
-    class ViewModelBase : INotifyPropertyChanged
+    class ViewModelBase : INotifyPropertyChanged, IDisposable
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public bool IsBusy { get; set; }
 
         protected void NotifyPropertyChanged(string propertyName)
         {
@@ -18,6 +19,15 @@ namespace LIFXGui.ViewModels
             {
                 h(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        ~ViewModelBase()
+        {
+            Dispose();
+        }
+
+        public virtual void Dispose()
+        {
         }
     }
 }

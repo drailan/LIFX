@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace LIFXGui.ViewModels
 {
-    class MainViewModel
+    class MainViewModel : ViewModelBase
     {
         private LifxController _controller;
         private ObservableCollection<BulbViewModel> _bulbs;
@@ -27,6 +27,14 @@ namespace LIFXGui.ViewModels
             _bulbs = new ObservableCollection<BulbViewModel>();
 
             InitObservableProperties();
+        }
+
+        public override void Dispose()
+        {
+            _controller = null;
+            _bulbs.Clear();
+            _bulbs = null;
+            base.Dispose();
         }
 
         private void InitObservableProperties()
@@ -51,8 +59,9 @@ namespace LIFXGui.ViewModels
             {
                 return new CommandBase(() =>
                 {
-                        _bulbs.Clear();
-                        Initialize();
+                    IsBusy = true;
+                    _bulbs.Clear();
+                    Initialize();
                 });
             }
         }

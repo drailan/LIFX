@@ -68,6 +68,7 @@
     <Compile Include="Helpers\PacketSize.cs" />
     <Compile Include="Bulb\LIFXBulb.cs" />
     <Compile Include="LIFXController.cs" />
+    <Compile Include="Log\Log.cs" />
     <Compile Include="Network\NetworkManager.cs" />
     <Compile Include="Packet\DiscoveryPacket.cs" />
     <Compile Include="Packet\IPacket.cs" />
