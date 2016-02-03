@@ -11,19 +11,19 @@ namespace LIFX
 {
     class LIFXEntry
     {
-        public:
-            static void GetDiscoveryPacket(uint8_t, void*);
-            static void GetLabelPacket(uint64_t, uint8_t, void*);
+    public:
+        static void GetDiscoveryPacket(uint8_t, void*);
+        static void GetLabelPacket(uint64_t, uint8_t, void*);
 
-            static bool PopulateLabels(wchar_t**);
-            static bool PopulateGroups(wchar_t**);
-            static bool GetLightState(std::wstring, uint32_t*);
-            static void SetPower(std::wstring, uint16_t);
-            static void GetPower(std::wstring, uint16_t*);
-            static void SetLightColor(std::wstring, uint16_t*);
-        private:
-            static LIFXController* getInstance(void);
-            static LIFXController* instance;
+        static bool PopulateLabels(wchar_t**);
+        static bool PopulateGroups(wchar_t**);
+        static bool GetLightState(std::wstring, uint32_t*);
+        static void SetPower(std::wstring, uint16_t);
+        static void GetPower(std::wstring, uint16_t*);
+        static void SetLightColor(std::wstring, uint16_t*);
+    private:
+        static LIFXController* getInstance(void);
+        static LIFXController* instance;
     };
 
     extern "C" { LIFX_API inline void GetDiscoveryPacket(uint8_t s, void* ptr) { LIFXEntry::GetDiscoveryPacket(s, ptr); }}

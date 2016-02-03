@@ -53,8 +53,10 @@ namespace LIFXGui.ViewModels
         public string Label
         {
             get { return _bulb.Label; }
-            set {
-                if (_bulb.Label != value) {
+            set
+            {
+                if (_bulb.Label != value)
+                {
                     _bulb.Label = value;
                     NotifyPropertyChanged("Label");
                 }
@@ -64,7 +66,8 @@ namespace LIFXGui.ViewModels
         public float Hue
         {
             get { return _bulb.Hue; }
-            set {
+            set
+            {
                 if (_bulb.Hue != value)
                 {
                     _bulb.Hue = value;
@@ -100,11 +103,12 @@ namespace LIFXGui.ViewModels
 
         public int Kelvin
         {
-            get { return (int) _bulb.Kelvin; }
-            set {
+            get { return (int)_bulb.Kelvin; }
+            set
+            {
                 if (_bulb.Kelvin != value)
                 {
-                    _bulb.Kelvin = (ushort) value;
+                    _bulb.Kelvin = (ushort)value;
                     NotifyPropertyChanged("Kelvin");
                 }
             }
@@ -141,7 +145,8 @@ namespace LIFXGui.ViewModels
         {
             get
             {
-                return new CommandBase(() => {
+                return new CommandBase(() =>
+                {
 
                 });
             }

@@ -12,7 +12,7 @@ namespace LIFXGui.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (ushort) value == 0 ? "Off" : "On";
+            return (ushort)value == 0 ? "Off" : "On";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

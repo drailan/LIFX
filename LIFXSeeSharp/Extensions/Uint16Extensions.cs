@@ -13,7 +13,7 @@ namespace LIFXSeeSharp.Extensions
         public static Func<byte[], IPAddress, BasePacket> ToPacket(this ushort value)
         {
             Func<byte[], IPAddress, BasePacket> creator;
-            switch(value)
+            switch (value)
             {
                 case 0x003:
                     creator = (payload, ip) => { return new DiscoveryPacket(payload, ip); };

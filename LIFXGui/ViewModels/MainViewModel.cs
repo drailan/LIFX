@@ -43,7 +43,7 @@ namespace LIFXGui.ViewModels
                 .ObserveOn(SynchronizationContext.Current)
                 .Do(b =>
                 {
-                     _bulbs.Add(new BulbViewModel(b, _controller));
+                    _bulbs.Add(new BulbViewModel(b, _controller));
                 })
                 .Subscribe();
         }

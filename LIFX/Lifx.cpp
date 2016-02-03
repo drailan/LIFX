@@ -11,8 +11,7 @@ namespace LIFX
 
     LIFXController* LIFXEntry::getInstance()
     {
-        if (instance == nullptr)
-        {
+        if (instance == nullptr) {
             instance = new LIFXController();
         }
 
@@ -29,8 +28,8 @@ namespace LIFX
         getInstance()->GetLabelPacket(s, seq, ptr);
     }
 
-    void LIFXEntry::SetPower(wstring s, uint16_t p)    
-    { 
+    void LIFXEntry::SetPower(wstring s, uint16_t p)
+    {
         getInstance()->SetPower(s.c_str(), p);
     }
 

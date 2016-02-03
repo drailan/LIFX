@@ -24,16 +24,16 @@ namespace LIFX
         uint8_t target[6];
         uint8_t padding[2]; // always 0 ( 2 byte mac padding )
         uint8_t site[6];
-        
+
         uint8_t  res_required : 1;
         uint8_t  ack_required : 1;
-        uint8_t:6;
+    uint8_t:6;
         uint8_t  sequence;
 
         /* protocol header */
-        uint64_t timestamp: 64; // timestamp
+        uint64_t timestamp : 64; // timestamp
         uint16_t type;
-        uint16_t:16;
+    uint16_t:16;
         /* variable length payload follows */
     } lifx_header;
 #pragma pack(pop)
@@ -63,7 +63,7 @@ namespace LIFX
     public:
         LIFXController();
         ~LIFXController();
-        
+
 
         void GetDiscoveryPacket(uint8_t, void*);
         void GetLabelPacket(uint64_t, uint8_t, void*);

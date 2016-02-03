@@ -132,7 +132,8 @@ namespace LIFXSeeSharp.Bulb
             }
         }
 
-        public ulong SiteAddress {
+        public ulong SiteAddress
+        {
             get { return _site; }
             set
             {

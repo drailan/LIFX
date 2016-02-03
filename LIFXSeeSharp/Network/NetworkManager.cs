@@ -25,7 +25,8 @@ namespace LIFXSeeSharp.Network
         private UdpClient _udpSender;
         private IPEndPoint _bcastEP;
 
-        public NetworkManager(int port = 56700) {
+        public NetworkManager(int port = 56700)
+        {
             _port = port;
 
             _bcastEP = new IPEndPoint(IPAddress.Broadcast, _port);
@@ -58,7 +59,7 @@ namespace LIFXSeeSharp.Network
             });
         }
 
-        public void Discover(byte[]packet, byte seq, int numBulbs = 4)
+        public void Discover(byte[] packet, byte seq, int numBulbs = 4)
         {
             _udpSender.Send(packet, PacketSize.DISCOVERY, _bcastEP);
         }

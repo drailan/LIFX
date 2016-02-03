@@ -247,7 +247,7 @@ namespace LIFX
         packet->source = 666;
         packet->protocol = _byteswap_ushort(0x34);
 
-        memcpy(ptr,reinterpret_cast<char*>(packet), packet->size);
+        memcpy(ptr, reinterpret_cast<char*>(packet), packet->size);
     }
 
     void LIFXController::GetLabelPacket(uint64_t site_address, uint8_t seq, void* ptr)
@@ -373,7 +373,7 @@ namespace LIFX
     {
         unsigned char data[2] = {
             static_cast<unsigned char>(buf[1]),
-            static_cast<unsigned char>(buf[0]) 
+            static_cast<unsigned char>(buf[0])
         };
         char hex[5];
 
@@ -413,12 +413,12 @@ namespace LIFX
         if (rc != 6 || strlen(s) != last)
             return -1;
 
-        auto mac =    uint64_t(a[0]) << 40 |
-                    uint64_t(a[1]) << 32 |
-                    uint64_t(a[2]) << 24 |
-                    uint64_t(a[3]) << 16 |
-                    uint64_t(a[4]) << 8 |
-                    uint64_t(a[5]);
+        auto mac = uint64_t(a[0]) << 40 |
+            uint64_t(a[1]) << 32 |
+            uint64_t(a[2]) << 24 |
+            uint64_t(a[3]) << 16 |
+            uint64_t(a[4]) << 8 |
+            uint64_t(a[5]);
 
         auto i = sizeof(mac);
 
