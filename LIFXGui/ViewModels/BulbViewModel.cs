@@ -1,155 +1,155 @@
-﻿using LIFXSeeSharp;
-using System.Windows.Input;
-using LIFXGui.Commands;
+﻿using LIFXGui.Commands;
+using LIFXSeeSharp;
 using LIFXSeeSharp.Bulb;
+using System.Windows.Input;
 
 namespace LIFXGui.ViewModels
 {
-    class BulbViewModel : ViewModelBase
-    {
-        private LifxBulb _bulb;
-        private LifxController _controller;
+	class BulbViewModel : ViewModelBase
+	{
+		private LifxBulb _bulb;
+		private LifxController _controller;
 
-        public LifxBulb Bulb
-        {
-            get { return _bulb; }
-            set { _bulb = value; }
-        }
+		public LifxBulb Bulb
+		{
+			get { return _bulb; }
+			set { _bulb = value; }
+		}
 
-        public BulbViewModel(LifxBulb b, LifxController controller)
-        {
-            Bulb = b;
-            _controller = controller;
+		public BulbViewModel(LifxBulb b, LifxController controller)
+		{
+			Bulb = b;
+			_controller = controller;
 
-            _bulb.PropertyChanged += _bulb_PropertyChanged;
-        }
+			_bulb.PropertyChanged += _bulb_PropertyChanged;
+		}
 
-        public override void Dispose()
-        {
-            _bulb.PropertyChanged -= _bulb_PropertyChanged;
-            base.Dispose();
-        }
+		public override void Dispose()
+		{
+			_bulb.PropertyChanged -= _bulb_PropertyChanged;
+			base.Dispose();
+		}
 
-        private void _bulb_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            NotifyPropertyChanged(e.PropertyName);
-        }
+		private void _bulb_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			NotifyPropertyChanged(e.PropertyName);
+		}
 
-        #region properties
+		#region properties
 
-        public string Group
-        {
-            get { return _bulb.Group; }
-            set
-            {
-                if (_bulb.Group != value)
-                {
-                    _bulb.Group = value;
-                    NotifyPropertyChanged("Group");
-                }
-            }
-        }
+		public string Group
+		{
+			get { return _bulb.Group; }
+			set
+			{
+				if (_bulb.Group != value)
+				{
+					_bulb.Group = value;
+					NotifyPropertyChanged("Group");
+				}
+			}
+		}
 
-        public string Label
-        {
-            get { return _bulb.Label; }
-            set
-            {
-                if (_bulb.Label != value)
-                {
-                    _bulb.Label = value;
-                    NotifyPropertyChanged("Label");
-                }
-            }
-        }
+		public string Label
+		{
+			get { return _bulb.Label; }
+			set
+			{
+				if (_bulb.Label != value)
+				{
+					_bulb.Label = value;
+					NotifyPropertyChanged("Label");
+				}
+			}
+		}
 
-        public float Hue
-        {
-            get { return _bulb.Hue; }
-            set
-            {
-                if (_bulb.Hue != value)
-                {
-                    _bulb.Hue = value;
-                    NotifyPropertyChanged("Hue");
-                }
-            }
-        }
+		public float Hue
+		{
+			get { return _bulb.Hue; }
+			set
+			{
+				if (_bulb.Hue != value)
+				{
+					_bulb.Hue = value;
+					NotifyPropertyChanged("Hue");
+				}
+			}
+		}
 
-        public float Saturation
-        {
-            get { return _bulb.Saturation; }
-            set
-            {
-                if (_bulb.Saturation != value)
-                {
-                    _bulb.Saturation = value;
-                    NotifyPropertyChanged("Saturation");
-                }
-            }
-        }
-        public float Brightness
-        {
-            get { return _bulb.Brightness; }
-            set
-            {
-                if (_bulb.Brightness != value)
-                {
-                    _bulb.Brightness = value;
-                    NotifyPropertyChanged("Brightness");
-                }
-            }
-        }
+		public float Saturation
+		{
+			get { return _bulb.Saturation; }
+			set
+			{
+				if (_bulb.Saturation != value)
+				{
+					_bulb.Saturation = value;
+					NotifyPropertyChanged("Saturation");
+				}
+			}
+		}
+		public float Brightness
+		{
+			get { return _bulb.Brightness; }
+			set
+			{
+				if (_bulb.Brightness != value)
+				{
+					_bulb.Brightness = value;
+					NotifyPropertyChanged("Brightness");
+				}
+			}
+		}
 
-        public int Kelvin
-        {
-            get { return (int)_bulb.Kelvin; }
-            set
-            {
-                if (_bulb.Kelvin != value)
-                {
-                    _bulb.Kelvin = (ushort)value;
-                    NotifyPropertyChanged("Kelvin");
-                }
-            }
-        }
+		public int Kelvin
+		{
+			get { return (int)_bulb.Kelvin; }
+			set
+			{
+				if (_bulb.Kelvin != value)
+				{
+					_bulb.Kelvin = (ushort)value;
+					NotifyPropertyChanged("Kelvin");
+				}
+			}
+		}
 
-        public ushort Dim
-        {
-            get { return _bulb.Dim; }
-            set
-            {
-                if (_bulb.Dim != value)
-                {
-                    _bulb.Dim = value;
-                    NotifyPropertyChanged("Dim");
-                }
-            }
-        }
-        public ushort Power
-        {
-            get { return _bulb.Power; }
-            set
-            {
-                if (_bulb.Power != value)
-                {
-                    _bulb.Power = value;
-                    NotifyPropertyChanged("Power");
-                }
-            }
-        }
+		public ushort Dim
+		{
+			get { return _bulb.Dim; }
+			set
+			{
+				if (_bulb.Dim != value)
+				{
+					_bulb.Dim = value;
+					NotifyPropertyChanged("Dim");
+				}
+			}
+		}
+		public ushort Power
+		{
+			get { return _bulb.Power; }
+			set
+			{
+				if (_bulb.Power != value)
+				{
+					_bulb.Power = value;
+					NotifyPropertyChanged("Power");
+				}
+			}
+		}
 
-        #endregion properties
+		#endregion properties
 
-        public ICommand PowerCommand
-        {
-            get
-            {
-                return new CommandBase(() =>
-                {
+		public ICommand PowerCommand
+		{
+			get
+			{
+				return new CommandBase(() =>
+				{
 
-                });
-            }
-        }
-    }
+				});
+			}
+		}
+	}
 }

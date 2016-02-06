@@ -21,118 +21,131 @@ using System.Threading;
 
 namespace LIFXSeeSharp
 {
-    public class LifxController
-    {
-        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void GetDiscoveryPacket([In] byte seq, [Out] byte[] packet);
+	public class LifxController : IDisposable
+	{
+		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void GetDiscoveryPacket([In] byte seq, [Out] byte[] packet);
 
-        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void GetLabelPacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
+		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void GetLabelPacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
 
-        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        private static extern bool GetGroups([Out] IntPtr[] labels);
+		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		private static extern bool SetPower(string label, ushort onoff);
 
-        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        private static extern bool SetPower(string label, ushort onoff);
+		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		private static extern bool GetPower(string label, [Out] ushort[] state);
 
-        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        private static extern bool GetPower(string label, [Out] ushort[] state);
+		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		private static extern bool SetLightColor(string label, ushort[] state);
 
-        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        private static extern bool SetLightColor(string label, ushort[] state);
+		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		private static extern bool GetLightState(string label, [Out] uint[] state);
 
-        [DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        private static extern bool GetLightState(string label, [Out] uint[] state);
+		private readonly string TAG = "LIFXController";
 
-        private readonly string TAG = "LIFXController";
+		public List<LifxBulb> Bulbs { get; set; }
 
-        public List<LifxBulb> Bulbs { get; set; }
+		private NetworkManager _networkManager;
+		private Subject<LifxBulb> _discoverySubject;
+		private Subject<LifxBulb> _labelSubject;
 
-        private NetworkManager _networkManager;
-        private Subject<LifxBulb> _discoverySubject;
-        private Subject<LifxBulb> _labelSubject;
+		private List<KeyValuePair<byte, LifxBulb>> _sentPackets;
+		CancellationToken _ct;
+		CancellationTokenSource _cts;
 
-        private List<KeyValuePair<byte, LifxBulb>> _sentPackets;
+		public LifxController()
+		{
+			_networkManager = new NetworkManager();
+			_discoverySubject = new Subject<LifxBulb>();
+			_labelSubject = new Subject<LifxBulb>();
+			_sentPackets = new List<KeyValuePair<byte, LifxBulb>>();
 
-        public LifxController()
-        {
-            _networkManager = new NetworkManager();
-            _discoverySubject = new Subject<LifxBulb>();
-            _labelSubject = new Subject<LifxBulb>();
-            _sentPackets = new List<KeyValuePair<byte, LifxBulb>>();
+			_ct = new CancellationToken();
+			_cts = new CancellationTokenSource();
 
-            InitObservableProperties();
-        }
+			_ct = _cts.Token;
 
-        private void InitObservableProperties()
-        {
-            _networkManager.UdpListener()
-                .ObserveOn(NewThreadScheduler.Default)
-                .Do(p => Log.Debug(TAG, "Received: {0}", p))
-                .Where(packet => packet.Sequence != 0)
-                .Do(packet =>
-                {
-                    var discoveryPacket = packet as DiscoveryPacket;
-                    if (discoveryPacket != null)
-                    {
-                        var duplicate = Bulbs.Any(b => b.IP.Equals(discoveryPacket.IP));
+			InitObservableProperties();
+		}
 
-                        if (!duplicate)
-                        {
-                            var bulb = new LifxBulb()
-                            {
-                                Mac = discoveryPacket.Mac,
-                                IP = discoveryPacket.IP,
-                                SiteAddress = discoveryPacket.Site
-                            };
+		private void InitObservableProperties()
+		{
+			_networkManager.UdpListener()
+				.ObserveOn(NewThreadScheduler.Default)
+				.Do(p => Log.Debug(TAG, "Received: {0}", p))
+				.Where(packet => packet.Sequence != 0)
+				.Do(packet =>
+				{
+					var discoveryPacket = packet as DiscoveryPacket;
+					if (discoveryPacket != null)
+					{
+						var duplicate = Bulbs.Any(b => b.IP.Equals(discoveryPacket.IP));
 
-                            Bulbs.Add(bulb);
-                            _discoverySubject.OnNext(bulb);
-                            _labelSubject.OnNext(bulb);
-                        }
-                    }
-                    else
-                    {
-                        var sentPacket = _sentPackets.Where(p => p.Key == packet.Sequence).FirstOrDefault();
-                        packet.ProcessBulb(sentPacket.Value);
-                        _sentPackets.Remove(sentPacket);
-                    }
-                })
-                .Subscribe();
+						if (!duplicate)
+						{
+							var bulb = new LifxBulb()
+							{
+								Mac = discoveryPacket.Mac,
+								IP = discoveryPacket.IP,
+								SiteAddress = discoveryPacket.Site
+							};
 
-            _labelSubject.Subscribe(bulb =>
-                {
-                    Thread.Sleep(750);
+							Bulbs.Add(bulb);
+							_discoverySubject.OnNext(bulb);
+							_labelSubject.OnNext(bulb);
+						}
+					}
+					else
+					{
+						var sentPacket = _sentPackets.Where(p => p.Key == packet.Sequence).FirstOrDefault();
+						packet.ProcessBulb(sentPacket.Value);
+						_sentPackets.Remove(sentPacket);
+					}
+				})
+				.Subscribe(_ct);
 
-                    var data = new byte[PacketSize.LABEL];
-                    var seq = SequenceGenerator.GetNext();
-                    GetLabelPacket(bulb.SiteAddress, seq, data);
+			_labelSubject.Subscribe(bulb =>
+				{
+					Thread.Sleep(750); // don't want to spam packets, bulbs might ignore some
 
-                    _sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
-                    _networkManager.GetLabel(data, seq, bulb.IP);
-                });
-        }
+					var data = new byte[PacketSize.LABEL];
+					var seq = SequenceGenerator.GetNext();
+					GetLabelPacket(bulb.SiteAddress, seq, data);
 
-        public IObservable<LifxBulb> ObserveBulbDiscovery()
-        {
-            return _discoverySubject;
-        }
+					_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
+					_networkManager.GetLabel(data, seq, bulb.IP);
+				});
+		}
 
-        public void RunInitialDiscovery()
-        {
-            if (Bulbs == null)
-            {
-                Bulbs = new List<LifxBulb>();
-            }
+		public IObservable<LifxBulb> ObserveBulbDiscovery()
+		{
+			return _discoverySubject;
+		}
 
-            Bulbs.Clear();
+		public void RunInitialDiscovery()
+		{
 
-            var data = new byte[PacketSize.DISCOVERY];
-            var seq = SequenceGenerator.GetNext();
-            GetDiscoveryPacket(seq, data);
+			if (Bulbs == null)
+			{
+				Bulbs = new List<LifxBulb>();
+			}
 
-            //_sentPackets.Add(new KeyValuePair<byte,LifxBulb>(seq, null));
-            _networkManager.Discover(data, seq);
-        }
-    }
+			Bulbs.Clear();
+
+			var data = new byte[PacketSize.DISCOVERY];
+			var seq = SequenceGenerator.GetNext();
+			GetDiscoveryPacket(seq, data);
+
+			_networkManager.Discover(data, seq);
+		}
+
+		public void Dispose()
+		{
+			Bulbs.Clear();
+			_cts.Cancel();
+			_discoverySubject.Dispose();
+			_labelSubject.Dispose();
+			_networkManager.Dispose();
+		}
+	}
 }

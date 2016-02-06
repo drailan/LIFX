@@ -1,69 +1,84 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-
+﻿using LIFXGui.Commands;
 using LIFXSeeSharp;
-using System.Windows.Input;
-using LIFXGui.Commands;
+using System;
+using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Windows.Input;
 
 namespace LIFXGui.ViewModels
 {
-    class MainViewModel : ViewModelBase
-    {
-        private LifxController _controller;
-        private ObservableCollection<BulbViewModel> _bulbs;
+	class MainViewModel : ViewModelBase
+	{
+		private LifxController _controller;
+		private ObservableCollection<BulbViewModel> _bulbs;
 
-        public ObservableCollection<BulbViewModel> Bulbs
-        {
-            get { return _bulbs; }
-            set { _bulbs = value; }
-        }
+		public ObservableCollection<BulbViewModel> Bulbs
+		{
+			get { return _bulbs; }
+			set { _bulbs = value; }
+		}
 
-        public MainViewModel()
-        {
-            _controller = new LifxController();
-            _bulbs = new ObservableCollection<BulbViewModel>();
+		public MainViewModel()
+		{
+			_controller = new LifxController();
+			_bulbs = new ObservableCollection<BulbViewModel>();
 
-            InitObservableProperties();
-        }
+			InitObservableProperties();
+		}
 
-        public override void Dispose()
-        {
-            _controller = null;
-            _bulbs.Clear();
-            _bulbs = null;
-            base.Dispose();
-        }
+		public override void Dispose()
+		{
 
-        private void InitObservableProperties()
-        {
-            _controller.ObserveBulbDiscovery()
-                .ObserveOn(SynchronizationContext.Current)
-                .Do(b =>
-                {
-                    _bulbs.Add(new BulbViewModel(b, _controller));
-                })
-                .Subscribe();
-        }
+			if (_controller != null)
+			{
+				_controller.Dispose();
+			}
 
-        public void Initialize()
-        {
-            _controller.RunInitialDiscovery();
-        }
+			base.Dispose();
+		}
 
-        public ICommand RefreshCommand
-        {
-            get
-            {
-                return new CommandBase(() =>
-                {
-                    IsBusy = true;
-                    _bulbs.Clear();
-                    Initialize();
-                });
-            }
-        }
-    }
+		private void InitObservableProperties()
+		{
+			_controller.ObserveBulbDiscovery()
+				.ObserveOn(SynchronizationContext.Current)
+				.Do(b =>
+				{
+					_bulbs.Add(new BulbViewModel(b, _controller));
+				})
+				.Subscribe();
+		}
+
+		public void Initialize()
+		{
+			_controller.RunInitialDiscovery();
+		}
+
+		public ICommand RefreshCommand
+		{
+			get
+			{
+				return new CommandBase(() =>
+				{
+					IsBusy = true;
+					_bulbs.Clear();
+					Initialize();
+				});
+			}
+		}
+
+		// Forced to do thise because udp client is blocking at ReceiveAsync, so
+		// the VM will never be GC'd it seems
+		public ICommand WindowClosing
+		{
+			get
+			{
+				return new CommandBase(() =>
+				{
+					Dispose();
+				});
+
+			}
+		}
+	}
 }

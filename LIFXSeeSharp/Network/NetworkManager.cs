@@ -3,72 +3,78 @@ using LIFXSeeSharp.Helpers;
 using LIFXSeeSharp.Logging;
 using LIFXSeeSharp.Packet;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace LIFXSeeSharp.Network
 {
-    class NetworkManager
-    {
-        private readonly string TAG = "NetworkManager";
+	class NetworkManager : IDisposable
+	{
+		private readonly string TAG = "NetworkManager";
 
-        private int _port;
-        private UdpClient _udpSender;
-        private IPEndPoint _bcastEP;
+		private int _port;
+		private UdpClient _udp;
+		private IPEndPoint _bcastEP;
 
-        public NetworkManager(int port = 56700)
-        {
-            _port = port;
+		public NetworkManager(int port = 56700)
+		{
+			_port = port;
 
-            _bcastEP = new IPEndPoint(IPAddress.Broadcast, _port);
-            InitializeSender();
-        }
+			_bcastEP = new IPEndPoint(IPAddress.Broadcast, _port);
+			InitializeSender();
+		}
 
-        private void InitializeSender()
-        {
-            _udpSender = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
-            _udpSender.EnableBroadcast = true;
-            _udpSender.Client.MulticastLoopback = false;
-        }
+		private void InitializeSender()
+		{
+			_udp = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
+			_udp.EnableBroadcast = true;
+			_udp.Client.MulticastLoopback = false;
+		}
 
-        public IObservable<IPacket> UdpListener()
-        {
-            return Observable.Create<IPacket>(async (observer, token) =>
-            {
-                while (true)
-                {
-                    if (token.IsCancellationRequested) { return; }
-                    var udpResult = await _udpSender.ReceiveAsync();
+		public IObservable<IPacket> UdpListener()
+		{
+			return Observable.Create<IPacket>(async (observer, token) =>
+			{
+				while (true)
+				{
+					if (token.IsCancellationRequested) { return; }
+					try
+					{
+						var udpResult = await _udp.ReceiveAsync();
 
-                    var packetTypeSubArray = new byte[2];
-                    Array.Copy(udpResult.Buffer, 32, packetTypeSubArray, 0, 2);
-                    var packetType = BitConverter.ToUInt16(packetTypeSubArray, 0);
+						var packetTypeSubArray = new byte[2];
+						Array.Copy(udpResult.Buffer, 32, packetTypeSubArray, 0, 2);
+						var packetType = BitConverter.ToUInt16(packetTypeSubArray, 0);
 
-                    var creator = packetType.ToPacket();
-                    observer.OnNext(creator(udpResult.Buffer, udpResult.RemoteEndPoint.Address));
-                }
-            });
-        }
+						var creator = packetType.ToPacket();
+						observer.OnNext(creator(udpResult.Buffer, udpResult.RemoteEndPoint.Address));
+					}
+					catch (ObjectDisposedException e)
+					{
+						Log.Error(TAG, "Udp is disposed, trying to exit?");
+						continue;
+					}
+				}
+			});
+		}
 
-        public void Discover(byte[] packet, byte seq, int numBulbs = 4)
-        {
-            _udpSender.Send(packet, PacketSize.DISCOVERY, _bcastEP);
-        }
+		public void Discover(byte[] packet, byte seq, int numBulbs = 4)
+		{
+			_udp.Send(packet, PacketSize.DISCOVERY, _bcastEP);
+			Log.Debug(TAG, "Sent discovery packet with sequence {0}", seq);
+		}
 
-        public void GetLabel(byte[] packet, byte seq, IPAddress ip)
-        {
-            IPEndPoint ep = new IPEndPoint(ip, _port);
-            _udpSender.Send(packet, PacketSize.LABEL, ep);
-            Log.Debug(TAG, "Sent label packet with sequence {0}", seq);
-        }
-    }
+		public void GetLabel(byte[] packet, byte seq, IPAddress ip)
+		{
+			IPEndPoint ep = new IPEndPoint(ip, _port);
+			_udp.Send(packet, PacketSize.LABEL, ep);
+			Log.Debug(TAG, "Sent label packet with sequence {0}", seq);
+		}
+
+		public void Dispose()
+		{
+			_udp.Dispose();
+		}
+	}
 }

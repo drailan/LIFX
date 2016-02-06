@@ -1,15 +1,9 @@
 ﻿<Application x:Class="LIFXGui.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:LIFXGui"
-             StartupUri="MainWindow.xaml">
-    <Application.Resources>
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:local="clr-namespace:LIFXGui"
+			 StartupUri="Views/MainWindow.xaml">
+	<Application.Resources>
 
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Dictionary.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-
-    </Application.Resources>
+	</Application.Resources>
 </Application>
