@@ -1,9 +1,9 @@
 ﻿using LIFXGui.Commands;
+using LIFXGui.Extensions;
 using LIFXSeeSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Windows.Input;
 
 namespace LIFXGui.ViewModels
@@ -11,47 +11,53 @@ namespace LIFXGui.ViewModels
 	class MainViewModel : ViewModelBase
 	{
 		private LifxController _controller;
-		private ObservableCollection<BulbViewModel> _bulbs;
 
 		public ObservableCollection<BulbViewModel> Bulbs
 		{
-			get { return _bulbs; }
-			set { _bulbs = value; }
+			get { return GetValue(() => Bulbs); }
+			set { SetValue(() => Bulbs, value); }
+		}
+
+		public bool IsInitialized
+		{
+			get { return GetValue(() => IsInitialized); }
+			set { SetValue(() => IsInitialized, value); }
 		}
 
 		public MainViewModel()
 		{
 			_controller = new LifxController();
-			_bulbs = new ObservableCollection<BulbViewModel>();
+			Bulbs = new ObservableCollection<BulbViewModel>();
 
 			InitObservableProperties();
 		}
 
-		public override void Dispose()
+		protected override void Dispose(bool hardDispose)
 		{
-
 			if (_controller != null)
 			{
 				_controller.Dispose();
 			}
 
-			base.Dispose();
+			base.Dispose(hardDispose);
 		}
 
 		private void InitObservableProperties()
 		{
 			_controller.ObserveBulbDiscovery()
-				.ObserveOn(SynchronizationContext.Current)
+				.ObserveOnDispatcher()
 				.Do(b =>
 				{
-					_bulbs.Add(new BulbViewModel(b, _controller));
+					Bulbs.Add(new BulbViewModel(b, _controller));
+					IsInitialized = true;
 				})
-				.Subscribe();
+				.Subscribe()
+				.DisposeWith(Disposable);
 		}
 
-		public void Initialize()
+		private void GetLightStates()
 		{
-			_controller.RunInitialDiscovery();
+
 		}
 
 		public ICommand RefreshCommand
@@ -60,10 +66,22 @@ namespace LIFXGui.ViewModels
 			{
 				return new CommandBase(() =>
 				{
-					IsBusy = true;
-					_bulbs.Clear();
-					Initialize();
-				});
+					Bulbs.Clear();
+					_controller.RunInitialDiscovery();
+				})
+				.CanExecute(() => { return true; });
+			}
+		}
+
+		public ICommand LightStateCommand
+		{
+			get
+			{
+				return new CommandBase(() =>
+				{
+					_controller.GetLightStates();
+				})
+				.CanExecute(() => { return IsInitialized; }) ;
 			}
 		}
 

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace LIFXGui.Commands
@@ -24,9 +20,10 @@ namespace LIFXGui.Commands
 			return _canExecute == null ? true : _canExecute();
 		}
 
-		public void CanExecute(Func<bool> predicate)
+		public ICommand CanExecute(Func<bool> predicate)
 		{
 			_canExecute = predicate;
+			return this;
 		}
 
 		public void Execute(object parameter)

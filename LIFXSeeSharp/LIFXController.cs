@@ -29,6 +29,9 @@ namespace LIFXSeeSharp
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void GetLabelPacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
 
+		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void GetLightStatePacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
+
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool SetPower(string label, ushort onoff);
 
@@ -113,7 +116,7 @@ namespace LIFXSeeSharp
 					GetLabelPacket(bulb.SiteAddress, seq, data);
 
 					_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
-					_networkManager.GetLabel(data, seq, bulb.IP);
+					_networkManager.SendTargetedPacket(data, seq, bulb.IP);
 				});
 		}
 
@@ -139,9 +142,22 @@ namespace LIFXSeeSharp
 			_networkManager.Discover(data, seq);
 		}
 
+		public void GetLightStates()
+		{
+			var bulb = Bulbs.First();
+			var data = new byte[PacketSize.LIGHT_STATE];
+			var seq = SequenceGenerator.GetNext();
+			GetLightStatePacket(bulb.SiteAddress, seq, data);
+
+			_networkManager.SendTargetedPacket(data, seq, bulb.IP);
+		}
+
 		public void Dispose()
 		{
-			Bulbs.Clear();
+			if (Bulbs != null)
+			{
+				Bulbs.Clear();
+			}
 			_cts.Cancel();
 			_discoverySubject.Dispose();
 			_labelSubject.Dispose();

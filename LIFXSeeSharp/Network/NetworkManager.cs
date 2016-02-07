@@ -65,11 +65,11 @@ namespace LIFXSeeSharp.Network
 			Log.Debug(TAG, "Sent discovery packet with sequence {0}", seq);
 		}
 
-		public void GetLabel(byte[] packet, byte seq, IPAddress ip)
+		public void SendTargetedPacket(byte[] packet, byte seq, IPAddress ip)
 		{
 			IPEndPoint ep = new IPEndPoint(ip, _port);
 			_udp.Send(packet, PacketSize.LABEL, ep);
-			Log.Debug(TAG, "Sent label packet with sequence {0}", seq);
+			Log.Debug(TAG, "Sent packet with sequence {0} to {1}", seq, ip);
 		}
 
 		public void Dispose()
