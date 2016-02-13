@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LIFXSeeSharp.Packet
 {
-	class LabelPacket : BasePacket
+	public class LabelPacket : BasePacket
 	{
 		private readonly string TAG = "LabelPacket";
 

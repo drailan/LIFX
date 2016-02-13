@@ -55,21 +55,15 @@ namespace LIFXGui.ViewModels
 				.DisposeWith(Disposable);
 		}
 
-		private void GetLightStates()
-		{
-
-		}
-
 		public ICommand RefreshCommand
 		{
 			get
 			{
-				return new CommandBase(() =>
+				return new RelayCommand(() =>
 				{
 					Bulbs.Clear();
 					_controller.RunInitialDiscovery();
-				})
-				.CanExecute(() => { return true; });
+				});
 			}
 		}
 
@@ -77,11 +71,9 @@ namespace LIFXGui.ViewModels
 		{
 			get
 			{
-				return new CommandBase(() =>
-				{
-					_controller.GetLightStates();
-				})
-				.CanExecute(() => { return IsInitialized; }) ;
+				return new RelayCommand
+					(() => _controller.GetLightStates(), 
+					() => { return IsInitialized; });
 			}
 		}
 
@@ -91,11 +83,7 @@ namespace LIFXGui.ViewModels
 		{
 			get
 			{
-				return new CommandBase(() =>
-				{
-					Dispose();
-				});
-
+				return new RelayCommand(() => Dispose());
 			}
 		}
 	}

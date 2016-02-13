@@ -1,6 +1,6 @@
 ﻿namespace LIFXSeeSharp.Bulb
 {
-	interface IBulb
+	public interface IBulb
 	{
 	}
 }

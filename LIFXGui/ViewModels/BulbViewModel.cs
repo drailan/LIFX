@@ -34,17 +34,11 @@ namespace LIFXGui.ViewModels
 			NotifyPropertyChanged(e.PropertyName);
 		}
 
-		#region properties
-
-		
-
-		#endregion properties
-
 		public ICommand PowerCommand
 		{
 			get
 			{
-				return new CommandBase(() =>
+				return new RelayCommand(() =>
 				{
 
 				});

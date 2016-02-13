@@ -72,7 +72,6 @@ packetNames = {
 	[0x0012]   = "Get wifi firmware state",
 	[0x0013]   = "Wifi firmware state",
 	[0x0014]   = "Get power state",
-	--[0x0015]   = "Set power state",
 	[0x0075]   = "Set power state",
 	[0x0016]   = "Power state",
 	[0x0017]   = "Get bulb label",
@@ -317,6 +316,12 @@ function accessPoint(buffer, pinfo, tree)
 	tree:add(F.channel,          buffer(36, 2))
 end
 
+function group(buffer, pinfo, tree)
+	tree:add(F.group, buffer(0, 16))
+	tree:add(F.group_label, buffer(16, 32))
+	tree:add(F.updated_at, buffer(48, 8))
+end
+
 packetTable = switch {
 	[0x0002] = getPanGateway,
 	[0x0003] = panGatewayState,
@@ -337,7 +342,6 @@ packetTable = switch {
 	[0x0012] = getWifiFirmwareState,
 	[0x0013] = wifiFirmwareState,
 	[0x0014] = getPowerState,
-	--[0x0015] = setPowerState,
 	[0x0075] = setPowerState,
 	[0x0016] = powerState,
 	[0x0017] = getBulbLabel,
@@ -369,8 +373,13 @@ packetTable = switch {
 	[0x012f] = wifiState,
 	[0x0130] = getAccessPoints,
 	[0x0131] = setAccessPoint,
-	[0x0132] = accessPoint
+	[0x0132] = accessPoint,
+	[0x0035] = group
 }
+
+F.group				= ProtoField.bytes("lifx.group"           , "Group"          , base.HEX)
+F.group_label		= ProtoField.string("lifx.group_label"     , "Label"          , base.HEX)
+F.updated_at		= ProtoField.uint64("lifx.updated_at"     , "updated_at"     , base.DEC)
 
 F.size             = ProtoField.uint16("lifx.size"           , "Packet size"          , base.DEC)
 F.protocol         = ProtoField.uint16("lifx.protocol"       , "LIFX protocol"        , base.HEX)

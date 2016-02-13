@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LIFXSeeSharp.Packet
 {
-	class BasePacket : IPacket
+	public class BasePacket : IPacket
 	{
 		public virtual byte Type { get { return 0x0; } }
 		public IPAddress IP { get; private set; }

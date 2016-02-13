@@ -68,23 +68,18 @@ namespace LIFX
 		void GetDiscoveryPacket(uint8_t, void*);
 		void GetLabelPacket(uint64_t, uint8_t, void*);
 		void GetLightStatePacket(uint64_t, uint8_t, void*);
+		void GetGroupPacket(uint64_t, uint8_t, void*);
 
 		void SetPower(const wchar_t*, uint16_t);
 		uint16_t GetPower(const wchar_t*);
 
 
 		void SetLightColor(const wchar_t*, uint16_t*);
-		light_state GetLightState(const wchar_t*);
 
 	private:
-		std::wstring GetLabel(const lifx_bulb);
-		std::wstring GetGroup(const lifx_bulb);
 		static uint32_t InvertAndConvertHexBufToUint(char[2]);
 
 		static void FormMac(uint8_t*, uint64_t);
-		static uint64_t StringToMac(const char*);
-		static uint64_t* StringToMacPtr(const char*);
-		static uint64_t GetMacFromIP(char*);
 
 		SOCKET bcast_socket;
 		SOCKET out_socket;

@@ -17,6 +17,12 @@ namespace LIFXSeeSharp.Extensions
 				case 0x019:
 					creator = (payload, ip) => { return new LabelPacket(payload, ip); };
 					break;
+				case 0x006b:
+					creator = (payload, ip) => { return new LightStatePacket(payload, ip); };
+					break;
+				case 0x0035:
+					creator = (payload, ip) => { return new GroupPacket(payload, ip); };
+					break;
 				default:
 					creator = (payload, ip) => { return new BasePacket(payload, ip); };
 					break;

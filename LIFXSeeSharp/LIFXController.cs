@@ -32,6 +32,9 @@ namespace LIFXSeeSharp
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void GetLightStatePacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
 
+		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void GetGroupPacket([In] ulong site, [In] byte seq, [Out] byte[] packet);
+
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool SetPower(string label, ushort onoff);
 
@@ -41,9 +44,6 @@ namespace LIFXSeeSharp
 		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
 		private static extern bool SetLightColor(string label, ushort[] state);
 
-		[DllImport("LIFX.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-		private static extern bool GetLightState(string label, [Out] uint[] state);
-
 		private readonly string TAG = "LIFXController";
 
 		public List<LifxBulb> Bulbs { get; set; }
@@ -51,6 +51,7 @@ namespace LIFXSeeSharp
 		private NetworkManager _networkManager;
 		private Subject<LifxBulb> _discoverySubject;
 		private Subject<LifxBulb> _labelSubject;
+		private Subject<LifxBulb> _groupSubject;
 
 		private List<KeyValuePair<byte, LifxBulb>> _sentPackets;
 		CancellationToken _ct;
@@ -61,11 +62,10 @@ namespace LIFXSeeSharp
 			_networkManager = new NetworkManager();
 			_discoverySubject = new Subject<LifxBulb>();
 			_labelSubject = new Subject<LifxBulb>();
+			_groupSubject = new Subject<LifxBulb>();
 			_sentPackets = new List<KeyValuePair<byte, LifxBulb>>();
 
-			_ct = new CancellationToken();
 			_cts = new CancellationTokenSource();
-
 			_ct = _cts.Token;
 
 			InitObservableProperties();
@@ -96,6 +96,7 @@ namespace LIFXSeeSharp
 							Bulbs.Add(bulb);
 							_discoverySubject.OnNext(bulb);
 							_labelSubject.OnNext(bulb);
+							_groupSubject.OnNext(bulb);
 						}
 					}
 					else
@@ -117,7 +118,20 @@ namespace LIFXSeeSharp
 
 					_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
 					_networkManager.SendTargetedPacket(data, seq, bulb.IP);
-				});
+				},
+				_ct);
+
+			_groupSubject.Subscribe(bulb =>
+			{
+				Thread.Sleep(750);
+				var data = new Byte[PacketSize.GROUP];
+				var seq = SequenceGenerator.GetNext();
+				GetGroupPacket(bulb.SiteAddress, seq, data);
+
+				_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
+				_networkManager.SendTargetedPacket(data, seq, bulb.IP);
+			},
+			_ct);
 		}
 
 		public IObservable<LifxBulb> ObserveBulbDiscovery()
@@ -144,12 +158,17 @@ namespace LIFXSeeSharp
 
 		public void GetLightStates()
 		{
-			var bulb = Bulbs.First();
-			var data = new byte[PacketSize.LIGHT_STATE];
-			var seq = SequenceGenerator.GetNext();
-			GetLightStatePacket(bulb.SiteAddress, seq, data);
+			Bulbs.ForEach(b =>
+			{
+				Thread.Sleep(750); // don't want to spam packets, bulbs might ignore some
 
-			_networkManager.SendTargetedPacket(data, seq, bulb.IP);
+				var data = new byte[PacketSize.LIGHT_STATE];
+				var seq = SequenceGenerator.GetNext();
+				GetLightStatePacket(b.SiteAddress, seq, data);
+
+				_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, b));
+				_networkManager.SendTargetedPacket(data, seq, b.IP);
+			});
 		}
 
 		public void Dispose()

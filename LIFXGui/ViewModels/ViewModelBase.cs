@@ -16,9 +16,11 @@ namespace LIFXGui.ViewModels
 		private readonly IDictionary<string, object> repository = new Dictionary<string, object>();
 
 		public CompositeDisposable HardDisposable { get; protected internal set; }
+
 		public CompositeDisposable Disposable { get; protected internal set; }
 
 		public event PropertyChangedEventHandler PropertyChanged;
+
 		public bool IsBusy { get; set; }
 
 		protected void NotifyPropertyChanged(string propertyName)
