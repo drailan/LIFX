@@ -114,7 +114,7 @@
 
 		<ToggleButton x:Name="powerButton"
 					  Content="{Binding Bulb.Power, Converter={StaticResource ButtonUIntToContentConverter}, FallbackValue='N/A', TargetNullValue='N/A'}"
-					  Command="{Binding PowerCommand}"
+					  Command="{Binding SetPowerCommand}"
 					  Grid.Column="1"
 					  Grid.Row="1"
 					  d:LayoutOverrides="Width"

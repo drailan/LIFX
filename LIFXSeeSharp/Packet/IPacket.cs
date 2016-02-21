@@ -6,5 +6,6 @@ namespace LIFXSeeSharp.Packet
 	{
 		byte Sequence { get; }
 		void ProcessBulb(IBulb bulb);
+		void ProcessPayload();
 	}
 }

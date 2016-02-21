@@ -37,4 +37,9 @@ namespace LIFX
 	{
 		getInstance()->GetGroupPacket(s, seq, ptr);
 	}
+
+	void LIFXEntry::SetPowerPacket(uint64_t s, uint64_t mac, uint8_t seq, uint16_t power, void* ptr)
+	{
+		getInstance()->SetPowerPacket(s, mac, seq, power, ptr);
+	}
 }

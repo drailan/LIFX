@@ -48,11 +48,14 @@ namespace LIFXSeeSharp.Network
 						var packetType = BitConverter.ToUInt16(packetTypeSubArray, 0);
 
 						var creator = packetType.ToPacket();
-						observer.OnNext(creator(udpResult.Buffer, udpResult.RemoteEndPoint.Address));
+						var packet = creator(udpResult.Buffer, udpResult.RemoteEndPoint.Address);
+						packet.ProcessPayload();
+
+						observer.OnNext(packet);
 					}
 					catch (ObjectDisposedException e)
 					{
-						Log.Error(TAG, "Udp is disposed, trying to exit?");
+						Log.Error(TAG, "Udp is disposed, trying to exit? Exception is: " + e.Message);
 						continue;
 					}
 				}
@@ -68,7 +71,7 @@ namespace LIFXSeeSharp.Network
 		public void SendTargetedPacket(byte[] packet, byte seq, IPAddress ip)
 		{
 			IPEndPoint ep = new IPEndPoint(ip, _port);
-			_udp.Send(packet, PacketSize.LABEL, ep);
+			_udp.Send(packet, packet.Length, ep);
 			Log.Debug(TAG, "Sent packet with sequence {0} to {1}", seq, ip);
 		}
 

@@ -24,18 +24,12 @@ namespace LIFXSeeSharp.Packet
 
 		public ushort Power { get; private set; }
 
-		public LightStatePacket() : base()
-		{
-		}
-
 		public LightStatePacket(byte[] payload, IPAddress ip) : base(payload, ip)
 		{
 		}
 
-		protected override void ProcessPayload()
+		public override void ProcessPayload()
 		{
-			//Array.Copy(udpResult.Buffer, 32, packetTypeSubArray, 0, 2);
-
 			base.ProcessPayload();
 
 			var hueSubArray = new byte[2];
@@ -78,7 +72,7 @@ namespace LIFXSeeSharp.Packet
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			return sb.AppendFormat("Label packet: IP {0}, Sequence {1}", IP.ToString(), Sequence).ToString();
+			return sb.AppendFormat("Light State packet packet: IP {0}, Sequence {1}", IP.ToString(), Sequence).ToString();
 		}
 	}
 }

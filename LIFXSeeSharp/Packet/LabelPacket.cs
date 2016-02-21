@@ -13,15 +13,11 @@ namespace LIFXSeeSharp.Packet
 		public override byte Type { get { return 0x0019; } }
 		public string Label { get; private set; }
 
-		public LabelPacket() : base()
-		{
-		}
-
 		public LabelPacket(byte[] payload, IPAddress ip) : base(payload, ip)
 		{
 		}
 
-		protected override void ProcessPayload()
+		public override void ProcessPayload()
 		{
 			base.ProcessPayload();
 

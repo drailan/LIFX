@@ -21,133 +21,101 @@ namespace LIFX
 	LIFXController::LIFXController()
 	{
 		setlocale(LC_CTYPE, "");
-		bulbs = vector<lifx_bulb>();
-
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons(DEFAULT_PORT);
-	}
-
-	void LIFXController::SetPower(const wchar_t* target, uint16_t value)
-	{
-		for (auto &bulb : bulbs) {
-			if (wcscmp(bulb.label, target) == 0) {
-				int iResult;
-
-				auto packet = new lifx_header();
-				memset(packet, 0, sizeof(lifx_header));
-				packet->size = sizeof(lifx_header) + 6;
-				packet->type = 0x0075;
-				packet->protocol = _byteswap_ushort(0x14);
-
-				FormMac(packet->target, bulb.mac);
-				FormMac(packet->site, bulb.site_address);
-
-				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
-
-				char buf[42];
-				ZeroMemory(buf, sizeof(buf));
-				memcpy(buf, packet, 36);
-				buf[36] = value & 0xFF;
-				buf[37] = value >> 8;
-
-				iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
-				closesocket(out_socket);
-			}
-		}
 	}
 
 	uint16_t LIFXController::GetPower(const wchar_t* target)
 	{
-		for (auto &bulb : bulbs) {
-			if (wcscmp(bulb.label, target) == 0) {
-				int iResult;
+		//for (auto &bulb : bulbs) {
+		//	if (wcscmp(bulb.label, target) == 0) {
+		//		int iResult;
 
-				auto packet = new lifx_header();
-				memset(packet, 0, sizeof(lifx_header));
-				packet->size = sizeof(lifx_header);
-				packet->type = 20;
-				packet->protocol = _byteswap_ushort(0x34);
+		//		auto packet = new lifx_header();
+		//		memset(packet, 0, sizeof(lifx_header));
+		//		packet->size = sizeof(lifx_header);
+		//		packet->type = 20;
+		//		packet->protocol = _byteswap_ushort(0x34);
 
-				FormMac(packet->site, bulb.site_address);
+		//		FormMac(packet->site, bulb.site_address);
 
-				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
+		//		out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		//		inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
-				iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+		//		iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
 
-				auto recvbuflen = 512;
-				char recvbuf[512];
+		//		auto recvbuflen = 512;
+		//		char recvbuf[512];
 
-				addr.sin_addr.s_addr = INADDR_ANY;
-				in_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				iResult = bind(in_socket, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+		//		addr.sin_addr.s_addr = INADDR_ANY;
+		//		in_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		//		iResult = bind(in_socket, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
 
-				sockaddr_in from;
-				int from_length = sizeof(sockaddr_in);
+		//		sockaddr_in from;
+		//		int from_length = sizeof(sockaddr_in);
 
-				do {
-					iResult = recvfrom(in_socket, recvbuf, recvbuflen, 0, reinterpret_cast<SOCKADDR*>(&from), &from_length);
-					if (iResult > 0) {
-						break; // ой, все
-					} else if (iResult == 0) {
-						printf("Connection closed\n");
-					} else {
-						printf("recv failed: %d\n", WSAGetLastError());
-					}
-				} while (iResult > 0);
+		//		do {
+		//			iResult = recvfrom(in_socket, recvbuf, recvbuflen, 0, reinterpret_cast<SOCKADDR*>(&from), &from_length);
+		//			if (iResult > 0) {
+		//				break; // ой, все
+		//			} else if (iResult == 0) {
+		//				printf("Connection closed\n");
+		//			} else {
+		//				printf("recv failed: %d\n", WSAGetLastError());
+		//			}
+		//		} while (iResult > 0);
 
-				closesocket(out_socket);
-				closesocket(in_socket);
+		//		closesocket(out_socket);
+		//		closesocket(in_socket);
 
-				return InvertAndConvertHexBufToUint(&recvbuf[36]);
-			}
-		}
+		//		return InvertAndConvertHexBufToUint(&recvbuf[36]);
+		//	}
+		//}
+
+		return 0;
 	}
 
 	void LIFXController::SetLightColor(const wchar_t* target, uint16_t* state)
 	{
-		for (auto &bulb : bulbs) {
-			if (wcscmp(bulb.label, target) == 0) {
-				int iResult;
+		//for (auto &bulb : bulbs) {
+		//	if (wcscmp(bulb.label, target) == 0) {
+		//		int iResult;
 
-				auto packet = new lifx_header();
-				memset(packet, 0, sizeof(lifx_header));
-				packet->size = sizeof(lifx_header) + 13;
-				packet->type = 0x0066;
-				packet->protocol = _byteswap_ushort(0x14);
+		//		auto packet = new lifx_header();
+		//		memset(packet, 0, sizeof(lifx_header));
+		//		packet->size = sizeof(lifx_header) + 13;
+		//		packet->type = 0x0066;
+		//		packet->protocol = _byteswap_ushort(0x14);
 
-				FormMac(packet->target, bulb.mac);
-				FormMac(packet->site, bulb.site_address);
+		//		FormMac(packet->target, bulb.mac);
+		//		FormMac(packet->site, bulb.site_address);
 
-				out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-				//addr.sin_addr.s_addr = inet_addr(bulb.ip);
-				inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
+		//		out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		//		//addr.sin_addr.s_addr = inet_addr(bulb.ip);
+		//		inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
 
-				char buf[49];
-				ZeroMemory(buf, sizeof(buf));
-				memcpy(buf, packet, 36);
-				buf[36] = 0;
+		//		char buf[49];
+		//		ZeroMemory(buf, sizeof(buf));
+		//		memcpy(buf, packet, 36);
+		//		buf[36] = 0;
 
-				buf[37] = state[0] & 0xFF;
-				buf[38] = state[0] >> 8;
+		//		buf[37] = state[0] & 0xFF;
+		//		buf[38] = state[0] >> 8;
 
-				buf[39] = state[1] & 0xFF;
-				buf[40] = state[1] >> 8;
+		//		buf[39] = state[1] & 0xFF;
+		//		buf[40] = state[1] >> 8;
 
-				buf[41] = state[2] & 0xFF;
-				buf[42] = state[2] >> 8;
+		//		buf[41] = state[2] & 0xFF;
+		//		buf[42] = state[2] >> 8;
 
-				buf[43] = state[3] & 0xFF;
-				buf[44] = state[3] >> 8;
+		//		buf[43] = state[3] & 0xFF;
+		//		buf[44] = state[3] >> 8;
 
-				buf[45] = state[4] & 0xFF;
-				buf[46] = state[4] >> 8;
+		//		buf[45] = state[4] & 0xFF;
+		//		buf[46] = state[4] >> 8;
 
-				iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
-				closesocket(out_socket);
-			}
-		}
+		//		iResult = sendto(out_socket, reinterpret_cast<const char*>(&buf), sizeof(buf), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
+		//		closesocket(out_socket);
+		//	}
+		//}
 	}
 
 	void LIFXController::GetDiscoveryPacket(uint8_t seq, void* ptr)
@@ -216,27 +184,31 @@ namespace LIFX
 		memcpy(ptr, reinterpret_cast<char*>(packet), packet->size);
 	}
 
-	uint32_t LIFXController::InvertAndConvertHexBufToUint(char buf[2])
+	void LIFXController::SetPowerPacket(uint64_t site_address, uint64_t mac, uint8_t seq, uint16_t power, void* ptr)
 	{
-		unsigned char data[2] = {
-			static_cast<unsigned char>(buf[1]),
-			static_cast<unsigned char>(buf[0])
-		};
-		char hex[5];
+		auto packet = new lifx_header();
+		memset(packet, 0, sizeof(lifx_header));
+		packet->size = sizeof(lifx_header);
+		packet->type = 21;
+		packet->ack_required = 0;
+		packet->res_required = 1;
+		packet->sequence = seq;
+		packet->source = 666;
+		packet->protocol = _byteswap_ushort(0x34);
 
-		sprintf(&hex[0], "%2x", data[0]);
-		sprintf(&hex[2], "%2x", data[1]);
+		FormMac(packet->site, site_address);
 
-		uint32_t out;
+		char buffer[38];
+		ZeroMemory(buffer, sizeof(buffer));
+		memcpy(buffer, packet, 36);
+		buffer[36] = power & 0xFF;
+		buffer[37] = power >> 8;
 
-		sscanf(hex, "%x", &out);
-		return out;
+		memcpy(ptr, reinterpret_cast<char*>(buffer), sizeof(buffer));
 	}
 
 	LIFXController::~LIFXController()
 	{
-		WSACleanup();
-		bulbs.clear();
 	}
 
 	void LIFXController::FormMac(uint8_t* target, uint64_t value)

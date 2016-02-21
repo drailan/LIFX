@@ -38,26 +38,6 @@ namespace LIFX
 	} lifx_header;
 #pragma pack(pop)
 
-	typedef struct
-	{
-		wchar_t group[256];
-		wchar_t label[256];
-		char ip[50];
-		uint64_t mac;
-		uint64_t site_address;
-	} lifx_bulb;
-
-	typedef struct
-	{
-		uint16_t hue;
-		uint16_t saturation;
-		uint16_t brightness;
-		uint16_t kelvin;
-		uint16_t dim;
-		uint16_t power;
-		char label[32];
-	} light_state;
-
 	class LIFXController
 	{
 	public:
@@ -69,23 +49,13 @@ namespace LIFX
 		void GetLabelPacket(uint64_t, uint8_t, void*);
 		void GetLightStatePacket(uint64_t, uint8_t, void*);
 		void GetGroupPacket(uint64_t, uint8_t, void*);
+		void SetPowerPacket(uint64_t, uint64_t, uint8_t, uint16_t, void*);
 
-		void SetPower(const wchar_t*, uint16_t);
 		uint16_t GetPower(const wchar_t*);
-
 
 		void SetLightColor(const wchar_t*, uint16_t*);
 
 	private:
-		static uint32_t InvertAndConvertHexBufToUint(char[2]);
-
 		static void FormMac(uint8_t*, uint64_t);
-
-		SOCKET bcast_socket;
-		SOCKET out_socket;
-		SOCKET in_socket;
-		WSADATA wsaData;
-		sockaddr_in addr;
-		std::vector<lifx_bulb> bulbs;
 	};
 }

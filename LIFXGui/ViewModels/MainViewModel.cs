@@ -72,7 +72,7 @@ namespace LIFXGui.ViewModels
 			get
 			{
 				return new RelayCommand
-					(() => _controller.GetLightStates(), 
+					(() => _controller.GetLightStates(),
 					() => { return IsInitialized; });
 			}
 		}

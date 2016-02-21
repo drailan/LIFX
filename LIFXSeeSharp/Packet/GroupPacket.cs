@@ -18,15 +18,11 @@ namespace LIFXSeeSharp.Packet
 
 		public byte[] GroupBytes { get; private set; }
 
-		public GroupPacket() : base()
-		{
-		}
-
 		public GroupPacket(byte[] payload, IPAddress ip) : base(payload, ip)
 		{
 		}
 
-		protected override void ProcessPayload()
+		public override void ProcessPayload()
 		{
 			base.ProcessPayload();
 

@@ -72,7 +72,7 @@ packetNames = {
 	[0x0012]   = "Get wifi firmware state",
 	[0x0013]   = "Wifi firmware state",
 	[0x0014]   = "Get power state",
-	[0x0075]   = "Set power state",
+	[0x0015]   = "Set power state",
 	[0x0016]   = "Power state",
 	[0x0017]   = "Get bulb label",
 	[0x0018]   = "Set bulb label",
@@ -183,7 +183,7 @@ function wifiFirmwareState(buffer, pinfo, tree)
 end
 
 function setPowerState(buffer, pinfo, tree)
-	tree:add(F.onoffReq, buffer(0, 1))
+	tree:add(F.onoffReq, buffer(0, 2))
 end
 
 function powerState(buffer, pinfo, tree)
@@ -342,7 +342,7 @@ packetTable = switch {
 	[0x0012] = getWifiFirmwareState,
 	[0x0013] = wifiFirmwareState,
 	[0x0014] = getPowerState,
-	[0x0075] = setPowerState,
+	[0x0015] = setPowerState,
 	[0x0016] = powerState,
 	[0x0017] = getBulbLabel,
 	[0x0018] = setBulbLabel,
@@ -393,7 +393,7 @@ F.site             = ProtoField.ether("lifx.site"            , "Site address"   
 F.timestamp        = ProtoField.uint64("lifx.timestamp"      , "Timestamp"            , base.HEX)
 F.packetType       = ProtoField.uint16("lifx.packetType"     , "Packet type"          , base.HEX , packetNames)
 F.unknown          = ProtoField.bytes("lifx.unknown"         , "Unknown"              , base.HEX)
-F.onoffReq         = ProtoField.uint8("lifx.onoff"           , "On/off setting"       , base.HEX , onOffStrings)
+F.onoffReq         = ProtoField.uint16("lifx.onoff"           , "On/off setting"       , base.HEX , onOffStrings)
 F.bulbName         = ProtoField.string("lifx.bulbName"       , "Bulb name"            , base.HEX)
 F.hue              = ProtoField.uint16("lifx.hue"            , "Hue"                  , base.DEC)
 F.saturation       = ProtoField.uint16("lifx.saturation"     , "Saturation"           , base.DEC)

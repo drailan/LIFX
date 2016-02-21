@@ -9,15 +9,11 @@ namespace LIFXSeeSharp.Packet
 		public override byte Type { get { return 0x003; } }
 		public uint Port { get; private set; }
 
-		public DiscoveryPacket() : base()
-		{
-		}
-
 		public DiscoveryPacket(byte[] payload, IPAddress ip) : base(payload, ip)
 		{
 		}
 
-		protected override void ProcessPayload()
+		public override void ProcessPayload()
 		{
 			base.ProcessPayload();
 

@@ -14,18 +14,13 @@ namespace LIFXSeeSharp.Packet
 		public byte[] Payload { get; private set; }
 		public byte Sequence { get; private set; }
 
-		public BasePacket()
-		{
-		}
-
 		public BasePacket(byte[] payload, IPAddress ip)
 		{
 			Payload = payload;
 			IP = ip;
-			ProcessPayload();
 		}
 
-		protected virtual void ProcessPayload()
+		public virtual void ProcessPayload()
 		{
 			var macSubArray = new byte[8];
 			var siteAddressSubArray = new byte[8];

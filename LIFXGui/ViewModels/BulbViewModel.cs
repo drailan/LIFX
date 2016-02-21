@@ -34,13 +34,24 @@ namespace LIFXGui.ViewModels
 			NotifyPropertyChanged(e.PropertyName);
 		}
 
-		public ICommand PowerCommand
+		public ICommand SetPowerCommand
 		{
 			get
 			{
 				return new RelayCommand(() =>
 				{
+					ushort power = 0;
 
+					if (Bulb.Power == 0)
+					{
+						power = 0xFFFF;
+					}
+					else
+					{
+						power = 0;
+					}
+
+					_controller.SetPower(Bulb, power);
 				});
 			}
 		}

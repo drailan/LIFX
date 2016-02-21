@@ -14,6 +14,9 @@ namespace LIFXSeeSharp.Extensions
 				case 0x003:
 					creator = (payload, ip) => { return new DiscoveryPacket(payload, ip); };
 					break;
+				case 0x0016:
+					creator = (payload, ip) => { return new PowerPacket(payload, ip); };
+					break;
 				case 0x019:
 					creator = (payload, ip) => { return new LabelPacket(payload, ip); };
 					break;
