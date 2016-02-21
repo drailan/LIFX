@@ -42,4 +42,8 @@ namespace LIFX
 	{
 		getInstance()->SetPowerPacket(s, mac, seq, power, ptr);
 	}
+	void LIFXEntry::SetLabelPacket(uint64_t s, uint64_t mac, uint8_t seq, char* label, void* ptr)
+	{
+		getInstance()->SetLabelPacket(s, mac, seq, label, ptr);
+	}
 }

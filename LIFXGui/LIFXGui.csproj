@@ -200,9 +200,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LIFXSeeSharp\LIFXSeeSharp.csproj">
+    <ProjectReference Include="..\LIFXSeeSharp\LifxSeeSharp.csproj">
       <Project>{22e53bb8-6cff-4285-82b4-6c5def2b55b6}</Project>
-      <Name>LIFXSeeSharp</Name>
+      <Name>LifxSeeSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

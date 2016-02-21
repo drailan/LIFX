@@ -1,16 +1,16 @@
-﻿using LIFXSeeSharp.Bulb;
-using LIFXSeeSharp.Logging;
+﻿using LifxSeeSharp.Bulb;
 using System;
+using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace LIFXSeeSharp.Packet
+namespace LifxSeeSharp.Packet
 {
 	public class LabelPacket : BasePacket
 	{
 		private readonly string TAG = "LabelPacket";
 
-		public override byte Type { get { return 0x0019; } }
+		public override byte PacketType { get { return 0x0019; } }
 		public string Label { get; private set; }
 
 		public LabelPacket(byte[] payload, IPAddress ip) : base(payload, ip)
@@ -39,7 +39,7 @@ namespace LIFXSeeSharp.Packet
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			return sb.AppendFormat("Label packet: IP {0}, Label {1}, Sequence {2}", IP.ToString(), Label, Sequence).ToString();
+			return sb.AppendFormat(CultureInfo.CurrentCulture, "Label packet: IP {0}, Label {1}, Sequence {2}", IP.ToString(), Label, Sequence).ToString();
 		}
 	}
 }

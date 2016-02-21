@@ -18,6 +18,7 @@ namespace LIFX
 		static void GetGroupPacket(uint64_t, uint8_t, void*);
 
 		static void SetPowerPacket(uint64_t, uint64_t, uint8_t, uint16_t, void*);
+		static void SetLabelPacket(uint64_t, uint64_t, uint8_t, char*, void*);
 
 	private:
 		static LIFXController* getInstance(void);
@@ -28,5 +29,7 @@ namespace LIFX
 	extern "C" { LIFX_API inline void GetLabelPacket(uint64_t s, uint8_t seq, void* ptr) { LIFXEntry::GetLabelPacket(s, seq, ptr); }}
 	extern "C" { LIFX_API inline void GetLightStatePacket(uint64_t s, uint8_t seq, void* ptr) { LIFXEntry::GetLightStatePacket(s, seq, ptr); }}
 	extern "C" { LIFX_API inline void GetGroupPacket(uint64_t s, uint8_t seq, void* ptr) { LIFXEntry::GetGroupPacket(s, seq, ptr); }}
+
 	extern "C" { LIFX_API inline void SetPowerPacket(uint64_t s, uint64_t mac, uint8_t seq, uint16_t p, void* ptr) { LIFXEntry::SetPowerPacket(s, mac, seq, p, ptr); }}
+	extern "C" { LIFX_API inline void SetLabelPacket(uint64_t s, uint64_t mac, uint8_t seq, char* l, void* ptr) { LIFXEntry::SetLabelPacket(s, mac, seq, l, ptr); }}
 }

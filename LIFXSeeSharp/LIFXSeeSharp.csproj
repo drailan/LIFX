@@ -7,8 +7,8 @@
     <ProjectGuid>{22E53BB8-6CFF-4285-82B4-6C5DEF2B55B6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LIFXSeeSharp</RootNamespace>
-    <AssemblyName>LIFXSeeSharp</AssemblyName>
+    <RootNamespace>LifxSeeSharp</RootNamespace>
+    <AssemblyName>LifxSeeSharp</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -17,11 +17,14 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>ExtendedCorrectnessRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -67,7 +70,7 @@
     <Compile Include="Extensions\Uint16Extensions.cs" />
     <Compile Include="Helpers\PacketSize.cs" />
     <Compile Include="Bulb\LIFXBulb.cs" />
-    <Compile Include="LIFXController.cs" />
+    <Compile Include="LifxController.cs" />
     <Compile Include="Log\Log.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Network\NetworkManager.cs" />

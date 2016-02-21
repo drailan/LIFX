@@ -1,6 +1,6 @@
 ﻿using LIFXGui.Commands;
 using LIFXGui.Extensions;
-using LIFXSeeSharp;
+using LifxSeeSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;

@@ -1,7 +1,7 @@
 ﻿
-namespace LIFXSeeSharp.Logging
+namespace LifxSeeSharp
 {
-	public class Log
+	public static class Log
 	{
 		public static void Debug(string tag, string message, params object[] args)
 		{

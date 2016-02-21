@@ -1,16 +1,16 @@
-﻿using LIFXSeeSharp.Bulb;
-using LIFXSeeSharp.Logging;
+﻿using LifxSeeSharp.Bulb;
 using System;
+using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace LIFXSeeSharp.Packet
+namespace LifxSeeSharp.Packet
 {
 	public class GroupPacket : BasePacket
 	{
 		private readonly string TAG = "LabelPacket";
 
-		public override byte Type { get { return 0x0035; } }
+		public override byte PacketType { get { return 0x0035; } }
 
 		public string Group { get; private set; }
 
@@ -52,7 +52,7 @@ namespace LIFXSeeSharp.Packet
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			return sb.AppendFormat("Label packet: IP {0}, Group {1}, Updated at {2} Sequence {3}",
+			return sb.AppendFormat(CultureInfo.CurrentCulture, "Label packet: IP {0}, Group {1}, Updated at {2} Sequence {3}",
 				IP.ToString(), UpdatedAt, Group, Sequence).ToString();
 		}
 	}

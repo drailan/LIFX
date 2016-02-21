@@ -1,12 +1,12 @@
-﻿using LIFXSeeSharp.Packet;
+﻿using LifxSeeSharp.Packet;
 using System;
 using System.Net;
 
-namespace LIFXSeeSharp.Extensions
+namespace LifxSeeSharp.Extensions
 {
 	static class Uint16Extensions
 	{
-		public static Func<byte[], IPAddress, BasePacket> ToPacket(this ushort value)
+		public static Func<byte[], IPAddress, IPacket> ToPacket(this ushort value)
 		{
 			Func<byte[], IPAddress, BasePacket> creator;
 			switch (value)

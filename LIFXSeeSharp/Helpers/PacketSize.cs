@@ -1,6 +1,6 @@
-﻿namespace LIFXSeeSharp.Helpers
+﻿namespace LifxSeeSharp.Helpers
 {
-	class PacketSize
+	public static class PacketSize
 	{
 		public static readonly int DISCOVERY = 36;
 		public static readonly int GET_LABEL = 36;
@@ -8,5 +8,6 @@
 		public static readonly int GET_GROUP = 36;
 
 		public static readonly int SET_POWER = 38;
+		public static readonly int SET_LABEL = 68;
 	}
 }

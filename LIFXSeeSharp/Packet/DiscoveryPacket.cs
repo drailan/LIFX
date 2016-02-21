@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace LIFXSeeSharp.Packet
+namespace LifxSeeSharp.Packet
 {
 	public class DiscoveryPacket : BasePacket
 	{
-		public override byte Type { get { return 0x003; } }
+		public override byte PacketType { get { return 0x003; } }
 		public uint Port { get; private set; }
 
 		public DiscoveryPacket(byte[] payload, IPAddress ip) : base(payload, ip)
@@ -25,7 +26,7 @@ namespace LIFXSeeSharp.Packet
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			return sb.AppendFormat("Discovery packet: IP {0}, Port {1}, Sequence {2}", IP.ToString(), Port, Sequence).ToString();
+			return sb.AppendFormat(CultureInfo.CurrentCulture, "Discovery packet: IP {0}, Port {1}, Sequence {2}", IP.ToString(), Port, Sequence).ToString();
 		}
 	}
 }

@@ -1,9 +1,8 @@
-﻿using LIFXSeeSharp.Bulb;
-using LIFXSeeSharp.Helpers;
-using LIFXSeeSharp.Logging;
-using LIFXSeeSharp.Native;
-using LIFXSeeSharp.Network;
-using LIFXSeeSharp.Packet;
+﻿using LifxSeeSharp.Bulb;
+using LifxSeeSharp.Helpers;
+using LifxSeeSharp.Native;
+using LifxSeeSharp.Network;
+using LifxSeeSharp.Packet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +18,13 @@ using System.Threading;
 // Dim => ms
 // Power => 0 & 65535
 
-namespace LIFXSeeSharp
+namespace LifxSeeSharp
 {
 	public sealed class LifxController : IDisposable
 	{
 		private readonly string TAG = "LIFXController";
 
-		public List<LifxBulb> Bulbs { get; set; }
+		public List<LifxBulb> Bulbs { get; private set; }
 
 		private NetworkManager _networkManager;
 
@@ -94,7 +93,7 @@ namespace LIFXSeeSharp
 					Thread.Sleep(750); // don't want to spam packets, bulbs might ignore some
 
 					var data = new byte[PacketSize.GET_LABEL];
-					var seq = SequenceGenerator.GetNext();
+					var seq = SequenceGenerator.Next;
 					NativeMethods.GetLabelPacket(bulb.SiteAddress, seq, data);
 
 					_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
@@ -106,7 +105,7 @@ namespace LIFXSeeSharp
 			{
 				Thread.Sleep(750);
 				var data = new Byte[PacketSize.GET_GROUP];
-				var seq = SequenceGenerator.GetNext();
+				var seq = SequenceGenerator.Next;
 				NativeMethods.GetGroupPacket(bulb.SiteAddress, seq, data);
 
 				_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
@@ -131,7 +130,7 @@ namespace LIFXSeeSharp
 			Bulbs.Clear();
 
 			var data = new byte[PacketSize.DISCOVERY];
-			var seq = SequenceGenerator.GetNext();
+			var seq = SequenceGenerator.Next;
 			NativeMethods.GetDiscoveryPacket(seq, data);
 
 			_networkManager.Discover(data, seq);
@@ -144,7 +143,7 @@ namespace LIFXSeeSharp
 				Thread.Sleep(750); // don't want to spam packets, bulbs might ignore some
 
 				var data = new byte[PacketSize.GET_LIGHT_STATE];
-				var seq = SequenceGenerator.GetNext();
+				var seq = SequenceGenerator.Next;
 				NativeMethods.GetLightStatePacket(b.SiteAddress, seq, data);
 
 				_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, b));
@@ -152,10 +151,39 @@ namespace LIFXSeeSharp
 			});
 		}
 
+		public void SetLabel(IBulb bulb, string label)
+		{
+			var b = bulb as LifxBulb;
+
+			if (b != null)
+			{
+				var data = new byte[PacketSize.SET_LABEL];
+				var seq = SequenceGenerator.Next;
+				NativeMethods.SetLabelPacket(b.SiteAddress, b.Mac, seq, label, data);
+
+				_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, b));
+				_networkManager.SendTargetedPacket(data, seq, b.IP);
+			}
+		}
+
+		public void GetLightState(IBulb bulb)
+		{
+			var b = bulb as LifxBulb;
+			if (b != null)
+			{
+				var data = new byte[PacketSize.GET_LIGHT_STATE];
+				var seq = SequenceGenerator.Next;
+				NativeMethods.GetLightStatePacket(b.SiteAddress, seq, data);
+
+				_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, b));
+				_networkManager.SendTargetedPacket(data, seq, b.IP);
+			}
+		}
+
 		public void SetPower(IBulb bulb, ushort power)
 		{
 			var data = new byte[PacketSize.SET_POWER];
-			var seq = SequenceGenerator.GetNext();
+			var seq = SequenceGenerator.Next;
 
 			var b = bulb as LifxBulb;
 			if (b != null)

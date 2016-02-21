@@ -1,6 +1,6 @@
-﻿using LIFXSeeSharp.Bulb;
+﻿using LifxSeeSharp.Bulb;
 
-namespace LIFXSeeSharp.Packet
+namespace LifxSeeSharp.Packet
 {
 	public interface IPacket
 	{

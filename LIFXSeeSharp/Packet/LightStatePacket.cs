@@ -1,16 +1,16 @@
-﻿using LIFXSeeSharp.Bulb;
-using LIFXSeeSharp.Logging;
+﻿using LifxSeeSharp.Bulb;
 using System;
+using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace LIFXSeeSharp.Packet
+namespace LifxSeeSharp.Packet
 {
 	public class LightStatePacket : BasePacket
 	{
 		private readonly string TAG = "LightStatePacket";
 
-		public override byte Type { get { return 0x006b; } }
+		public override byte PacketType { get { return 0x006b; } }
 
 		public float Hue { get; private set; }
 
@@ -60,7 +60,7 @@ namespace LIFXSeeSharp.Packet
 			var b = bulb as LifxBulb;
 			if (b != null)
 			{
-				b.Hue = Hue / 65535;
+				b.Hue = Hue * 360 / 65535;
 				b.Saturation = Saturation / 65535;
 				b.Brightness = Brightness / 65535;
 				b.Kelvin = Kelvin;
@@ -72,7 +72,7 @@ namespace LIFXSeeSharp.Packet
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			return sb.AppendFormat("Light State packet packet: IP {0}, Sequence {1}", IP.ToString(), Sequence).ToString();
+			return sb.AppendFormat(CultureInfo.CurrentCulture, "Light State packet packet: IP {0}, Sequence {1}", IP.ToString(), Sequence).ToString();
 		}
 	}
 }

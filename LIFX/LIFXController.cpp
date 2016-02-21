@@ -13,6 +13,9 @@
 #include <clocale>
 #include <cassert>
 
+#include <iostream>
+#include <string>
+
 using namespace std;
 
 namespace LIFX
@@ -21,56 +24,6 @@ namespace LIFX
 	LIFXController::LIFXController()
 	{
 		setlocale(LC_CTYPE, "");
-	}
-
-	uint16_t LIFXController::GetPower(const wchar_t* target)
-	{
-		//for (auto &bulb : bulbs) {
-		//	if (wcscmp(bulb.label, target) == 0) {
-		//		int iResult;
-
-		//		auto packet = new lifx_header();
-		//		memset(packet, 0, sizeof(lifx_header));
-		//		packet->size = sizeof(lifx_header);
-		//		packet->type = 20;
-		//		packet->protocol = _byteswap_ushort(0x34);
-
-		//		FormMac(packet->site, bulb.site_address);
-
-		//		out_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		//		inet_pton(AF_INET, bulb.ip, &(addr.sin_addr.s_addr));
-
-		//		iResult = sendto(out_socket, reinterpret_cast<const char*>(packet), sizeof(lifx_header), 0, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
-
-		//		auto recvbuflen = 512;
-		//		char recvbuf[512];
-
-		//		addr.sin_addr.s_addr = INADDR_ANY;
-		//		in_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		//		iResult = bind(in_socket, reinterpret_cast<SOCKADDR *>(&addr), sizeof(addr));
-
-		//		sockaddr_in from;
-		//		int from_length = sizeof(sockaddr_in);
-
-		//		do {
-		//			iResult = recvfrom(in_socket, recvbuf, recvbuflen, 0, reinterpret_cast<SOCKADDR*>(&from), &from_length);
-		//			if (iResult > 0) {
-		//				break; // ой, все
-		//			} else if (iResult == 0) {
-		//				printf("Connection closed\n");
-		//			} else {
-		//				printf("recv failed: %d\n", WSAGetLastError());
-		//			}
-		//		} while (iResult > 0);
-
-		//		closesocket(out_socket);
-		//		closesocket(in_socket);
-
-		//		return InvertAndConvertHexBufToUint(&recvbuf[36]);
-		//	}
-		//}
-
-		return 0;
 	}
 
 	void LIFXController::SetLightColor(const wchar_t* target, uint16_t* state)
@@ -203,6 +156,28 @@ namespace LIFX
 		memcpy(buffer, packet, 36);
 		buffer[36] = power & 0xFF;
 		buffer[37] = power >> 8;
+
+		memcpy(ptr, reinterpret_cast<char*>(buffer), sizeof(buffer));
+	}
+
+	void LIFXController::SetLabelPacket(uint64_t site_address, uint64_t mac, uint8_t seq, char* label, void* ptr)
+	{
+		auto packet = new lifx_header();
+		memset(packet, 0, sizeof(lifx_header));
+		packet->size = sizeof(lifx_header);
+		packet->type = 24;
+		packet->ack_required = 0;
+		packet->res_required = 1;
+		packet->sequence = seq;
+		packet->source = 666;
+		packet->protocol = _byteswap_ushort(0x34);
+
+		FormMac(packet->site, site_address);
+
+		char buffer[68];
+		ZeroMemory(buffer, sizeof(buffer));
+		memcpy(buffer, packet, 36);
+		memcpy(&buffer[36], label, sizeof(label));
 
 		memcpy(ptr, reinterpret_cast<char*>(buffer), sizeof(buffer));
 	}

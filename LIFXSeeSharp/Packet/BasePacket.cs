@@ -1,13 +1,14 @@
-﻿using LIFXSeeSharp.Bulb;
+﻿using LifxSeeSharp.Bulb;
 using System;
+using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace LIFXSeeSharp.Packet
+namespace LifxSeeSharp.Packet
 {
 	public class BasePacket : IPacket
 	{
-		public virtual byte Type { get { return 0x0; } }
+		public virtual byte PacketType { get { return 0x0; } }
 		public IPAddress IP { get; private set; }
 		public ulong Mac { get; private set; }
 		public ulong Site { get; private set; }
@@ -38,7 +39,7 @@ namespace LIFXSeeSharp.Packet
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			return sb.AppendFormat("Base packet: IP {0}, Sequence {1}", IP.ToString(), Sequence).ToString();
+			return sb.AppendFormat(CultureInfo.CurrentCulture, "Base packet: IP {0}, Sequence {1}", IP.ToString(), Sequence).ToString();
 		}
 
 		public virtual void ProcessBulb(IBulb bulb)

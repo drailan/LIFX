@@ -1,13 +1,12 @@
-﻿using LIFXSeeSharp.Extensions;
-using LIFXSeeSharp.Helpers;
-using LIFXSeeSharp.Logging;
-using LIFXSeeSharp.Packet;
+﻿using LifxSeeSharp.Extensions;
+using LifxSeeSharp.Helpers;
+using LifxSeeSharp.Packet;
 using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Linq;
 
-namespace LIFXSeeSharp.Network
+namespace LifxSeeSharp.Network
 {
 	class NetworkManager : IDisposable
 	{
@@ -62,7 +61,7 @@ namespace LIFXSeeSharp.Network
 			});
 		}
 
-		public void Discover(byte[] packet, byte seq, int numBulbs = 4)
+		public void Discover(byte[] packet, byte seq)
 		{
 			_udp.Send(packet, PacketSize.DISCOVERY, _bcastEP);
 			Log.Debug(TAG, "Sent discovery packet with sequence {0}", seq);

@@ -1,16 +1,16 @@
-﻿using LIFXSeeSharp.Bulb;
-using LIFXSeeSharp.Logging;
+﻿using LifxSeeSharp.Bulb;
 using System;
+using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace LIFXSeeSharp.Packet
+namespace LifxSeeSharp.Packet
 {
 	class PowerPacket : BasePacket
 	{
 		private readonly string TAG = "PowerPacket";
 
-		public override byte Type { get { return 0x0016; } }
+		public override byte PacketType { get { return 0x0016; } }
 
 		public ushort Power { get; private set; }
 
@@ -40,7 +40,7 @@ namespace LIFXSeeSharp.Packet
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			return sb.AppendFormat("Power packet: IP {0}, Sequence {1}, Power {2}", IP.ToString(), Sequence, Power).ToString();
+			return sb.AppendFormat(CultureInfo.CurrentCulture, "Power packet: IP {0}, Sequence {1}, Power {2}", IP.ToString(), Sequence, Power).ToString();
 		}
 	}
 }

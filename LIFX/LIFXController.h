@@ -49,9 +49,9 @@ namespace LIFX
 		void GetLabelPacket(uint64_t, uint8_t, void*);
 		void GetLightStatePacket(uint64_t, uint8_t, void*);
 		void GetGroupPacket(uint64_t, uint8_t, void*);
-		void SetPowerPacket(uint64_t, uint64_t, uint8_t, uint16_t, void*);
 
-		uint16_t GetPower(const wchar_t*);
+		void SetPowerPacket(uint64_t, uint64_t, uint8_t, uint16_t, void*);
+		void SetLabelPacket(uint64_t, uint64_t, uint8_t, char*, void*);
 
 		void SetLightColor(const wchar_t*, uint16_t*);
 

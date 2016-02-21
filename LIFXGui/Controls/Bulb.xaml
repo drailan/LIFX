@@ -85,13 +85,6 @@
 			   VerticalContentAlignment="Center"
 			   Grid.Row="6" />
 
-		<xctk:ColorPicker Grid.Column="2"
-						  Margin="10,0"
-						  Grid.Row="3"
-						  d:LayoutOverrides="Height"
-						  ShowAvailableColors="False"
-						  ShowStandardColors="False" />
-
 		<TextBox x:Name="labelTexBox"
 				 Grid.ColumnSpan="2"
 				 Grid.Column="1"
@@ -124,12 +117,12 @@
 		<xctk:DoubleUpDown x:Name="hueUpDown"
 						   Grid.Column="1"
 						   Grid.Row="3"
-						   Maximum="100"
+						   Maximum="360"
 						   Minimum="0"
 						   Margin="10,0"
 						   Value="{Binding Bulb.Hue}"
-						   FormatString="P"
-						   Increment="0.01" />
+						   FormatString="N"
+						   Increment="1" />
 
 		<xctk:DoubleUpDown x:Name="saturationUpDown"
 						   Grid.Column="1"

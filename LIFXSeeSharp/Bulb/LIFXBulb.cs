@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace LIFXSeeSharp.Bulb
+namespace LifxSeeSharp.Bulb
 {
 	public class LifxBulb : IBulb, INotifyPropertyChanged
 	{
@@ -170,15 +171,15 @@ namespace LIFXSeeSharp.Bulb
 			}
 		}
 
-		public LifxBulb(string label = "")
+		public LifxBulb()
 		{
-			Label = label;
 		}
 
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			sb.AppendFormat("Label: {0}\n\tHue: {1}\n\tSaturation: {2}\n\tBrightNess: {3}\n\tKelvin: {4}\n\tDim: {5}\n\tPower: {6}\n\tIP: {7}\n",
+			sb.AppendFormat(CultureInfo.CurrentCulture,
+				"Label: {0}\n\tHue: {1}\n\tSaturation: {2}\n\tBrightNess: {3}\n\tKelvin: {4}\n\tDim: {5}\n\tPower: {6}\n\tIP: {7}\n",
 				Label, Hue, Saturation, Brightness, Kelvin, Dim, Power, IP.ToString());
 			return sb.ToString();
 		}

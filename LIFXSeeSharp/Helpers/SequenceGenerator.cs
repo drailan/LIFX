@@ -1,17 +1,17 @@
 ﻿using System;
 
-namespace LIFXSeeSharp.Helpers
+namespace LifxSeeSharp.Helpers
 {
-	class SequenceGenerator
+	public static class SequenceGenerator
 	{
-		private static readonly byte _max = Byte.MaxValue;
+		private const byte _max = Byte.MaxValue;
 		private static byte _current = 1;
 
 		public static byte Current { get { return _current; } }
 
-		public static byte GetNext()
+		public static byte Next
 		{
-			return _current == _max ? Reset() : ++_current;
+			get { return _current == _max ? Reset() : ++_current; }
 		}
 
 		private static byte Reset()

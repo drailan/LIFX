@@ -1,6 +1,6 @@
 ﻿using LIFXGui.Commands;
-using LIFXSeeSharp;
-using LIFXSeeSharp.Bulb;
+using LifxSeeSharp;
+using LifxSeeSharp.Bulb;
 using System.Windows.Input;
 
 namespace LIFXGui.ViewModels
