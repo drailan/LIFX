@@ -33,6 +33,11 @@ namespace LIFXGui.Commands
 		{
 			_action.Invoke();
 		}
+
+		public void RaiseCanExecuteChanged()
+		{
+			CommandManager.InvalidateRequerySuggested();
+		}
 	}
 
 }

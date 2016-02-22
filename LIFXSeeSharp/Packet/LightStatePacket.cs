@@ -61,8 +61,8 @@ namespace LifxSeeSharp.Packet
 			if (b != null)
 			{
 				b.Hue = Hue * 360 / 65535;
-				b.Saturation = Saturation / 65535;
-				b.Brightness = Brightness / 65535;
+				b.Saturation = Saturation / 65535 * 100;
+				b.Brightness = Brightness / 65535 * 100;
 				b.Kelvin = Kelvin;
 				b.Dim = Dim;
 				b.Power = Power;

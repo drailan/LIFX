@@ -135,6 +135,7 @@
     <Compile Include="Converters\ButtonUIntToStateConverter.cs" />
     <Compile Include="Extensions\DisposableExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
+    <Compile Include="Extensions\INotifyPropertyChangedExtensions.cs" />
     <Compile Include="ViewModels\BulbViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />

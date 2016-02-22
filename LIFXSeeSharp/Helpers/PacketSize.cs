@@ -9,5 +9,6 @@
 
 		public static readonly int SET_POWER = 38;
 		public static readonly int SET_LABEL = 68;
+		public static readonly int SET_LIGHT_STATE = 49;
 	}
 }

@@ -9,8 +9,6 @@
 			 x:Class="LIFXGui.Controls.Bulb"
 			 xmlns:Converters="clr-namespace:LIFXGui.Converters"
 			 mc:Ignorable="d"
-			 d:DesignHeight="300"
-			 d:DesignWidth="300"
 			 HorizontalAlignment="Left"
 			 VerticalAlignment="Top"
 			 DataContext="{Binding}">
@@ -18,141 +16,103 @@
 		<Converters:ButtonUIntToStateConverter x:Key="ButtonUIntToStateConverter" />
 		<Converters:ButtonUIntToContentConverter x:Key="ButtonUIntToContentConverter" />
 	</UserControl.Resources>
-	<Grid>
-		<Grid.Background>
-			<LinearGradientBrush EndPoint="0.034,0.028"
-								 StartPoint="0.992,1.004">
-				<GradientStop Color="Black"
-							  Offset="0" />
-				<GradientStop Color="White"
-							  Offset="1" />
-				<GradientStop Color="#FF2F2F2F"
-							  Offset="0.06" />
-			</LinearGradientBrush>
-		</Grid.Background>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto" />
-			<ColumnDefinition Width="Auto" />
-			<ColumnDefinition />
-		</Grid.ColumnDefinitions>
-		<Label x:Name="Label"
-			   Content="Label"
-			   HorizontalContentAlignment="Center"
-			   VerticalContentAlignment="Center" />
+	<StackPanel Orientation="Vertical">
+		<StackPanel Orientation="Horizontal">
+			<Label x:Name="Label"
+				   Content="Label"
+				   MinWidth="150" />
+			<TextBox x:Name="labelTexBox"
+					 Text="{Binding Bulb.Label, FallbackValue='Bulb label', TargetNullValue='Bulb label'}"
+					 MaxLines="1"
+					 ToolTip="Bulb label"
+					 MinWidth="150"
+					 Margin="10,0" />
+			<Button Content="Set label"
+					Command="{Binding SetLabelCommand}"
+					Margin="10,0" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label x:Name="Power"
+				   Content="Power"
+				   MinWidth="150" />
+			<ToggleButton x:Name="powerButton"
+						  Content="{Binding Bulb.Power, Converter={StaticResource ButtonUIntToContentConverter}, FallbackValue='N/A', TargetNullValue='N/A'}"
+						  Command="{Binding SetPowerCommand}"
+						  ClickMode="Press"
+						  IsChecked="{Binding Bulb.Power, Converter={StaticResource ButtonUIntToStateConverter}, FallbackValue=False, TargetNullValue=False, Mode=OneWay}"
+						  Margin="10,0" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label x:Name="Group"
+				   Content="Group"
+				   MinWidth="150" />
+			<TextBox x:Name="groupTextBox"
+					 MaxLines="1"
+					 ToolTip="Bulb label"
+					 Text="{Binding Bulb.Group, FallbackValue='Bulb group', TargetNullValue='Bulb group'}"
+					 Margin="10,0" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label x:Name="Hue"
+				   Content="Hue"
+				   MinWidth="150" />
+			<xctk:DoubleUpDown x:Name="hueUpDown"
+							   Maximum="360"
+							   Minimum="0"
+							   Margin="10,0"
+							   Value="{Binding Bulb.Hue}"
+							   FormatString="N"
+							   Increment="1" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label x:Name="Saturation"
+				   Content="Saturation"
+				   MinWidth="150" />
 
-		<Label x:Name="Power"
-			   Content="Power"
-			   HorizontalContentAlignment="Center"
-			   VerticalContentAlignment="Center"
-			   Grid.Row="1" />
+			<xctk:DoubleUpDown x:Name="saturationUpDown"
+							   Maximum="100"
+							   Minimum="0"
+							   Margin="10,0"
+							   Value="{Binding Bulb.Saturation}"
+							   FormatString="N"
+							   Increment="1" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label x:Name="Brightness"
+				   Content="Brightness"
+				   MinWidth="150" />
 
-		<Label x:Name="Group"
-			   Content="Group"
-			   HorizontalContentAlignment="Center"
-			   VerticalContentAlignment="Center"
-			   Grid.Row="2" />
+			<xctk:DoubleUpDown x:Name="brightnessUpDown"
+							   Maximum="100"
+							   Minimum="0"
+							   Margin="10,0"
+							   Value="{Binding Bulb.Brightness}"
+							   FormatString="N"
+							   Increment="1" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<Label x:Name="Kelvin"
+				   Content="Kelvin"
+				   MinWidth="150" />
 
-		<Label x:Name="Hue"
-			   Content="Hue"
-			   HorizontalContentAlignment="Center"
-			   VerticalContentAlignment="Center"
-			   Grid.Row="3" />
-
-		<Label x:Name="Saturation"
-			   Content="Saturation"
-			   HorizontalContentAlignment="Center"
-			   VerticalContentAlignment="Center"
-			   Grid.Row="4" />
-
-		<Label x:Name="Brightness"
-			   Content="Brightness"
-			   HorizontalContentAlignment="Center"
-			   VerticalContentAlignment="Center"
-			   Grid.Row="5" />
-
-		<Label x:Name="Kelvin"
-			   Content="Kelvin"
-			   HorizontalContentAlignment="Center"
-			   VerticalContentAlignment="Center"
-			   Grid.Row="6" />
-
-		<TextBox x:Name="labelTexBox"
-				 Grid.ColumnSpan="2"
-				 Grid.Column="1"
-				 Text="{Binding Bulb.Label, FallbackValue='Bulb label', TargetNullValue='Bulb label'}"
-				 VerticalContentAlignment="Center"
-				 MaxLines="1"
-				 ToolTip="Bulb label"
-				 Width="213"
-				 Margin="10,0" />
-
-		<TextBox x:Name="groupTextBox"
-				 Grid.ColumnSpan="2"
-				 Grid.Column="1"
-				 VerticalContentAlignment="Center"
-				 MaxLines="1"
-				 ToolTip="Bulb label"
-				 Grid.Row="2"
-				 Text="{Binding Bulb.Group, FallbackValue='Bulb group', TargetNullValue='Bulb group'}"
-				 Margin="10,0" />
-
-		<ToggleButton x:Name="powerButton"
-					  Content="{Binding Bulb.Power, Converter={StaticResource ButtonUIntToContentConverter}, FallbackValue='N/A', TargetNullValue='N/A'}"
-					  Command="{Binding SetPowerCommand}"
-					  Grid.Column="1"
-					  Grid.Row="1"
-					  d:LayoutOverrides="Width"
-					  ClickMode="Press"
-					  IsChecked="{Binding Bulb.Power, Converter={StaticResource ButtonUIntToStateConverter}, FallbackValue=False, TargetNullValue=False, Mode=OneWay}"
-					  Margin="10,0" />
-		<xctk:DoubleUpDown x:Name="hueUpDown"
-						   Grid.Column="1"
-						   Grid.Row="3"
-						   Maximum="360"
-						   Minimum="0"
-						   Margin="10,0"
-						   Value="{Binding Bulb.Hue}"
-						   FormatString="N"
-						   Increment="1" />
-
-		<xctk:DoubleUpDown x:Name="saturationUpDown"
-						   Grid.Column="1"
-						   Grid.Row="4"
-						   Maximum="100"
-						   Minimum="0"
-						   Margin="10,0"
-						   Value="{Binding Bulb.Saturation}"
-						   FormatString="P"
-						   Increment="0.01" />
-
-		<xctk:DoubleUpDown x:Name="brightnessUpDown"
-						   Grid.Column="1"
-						   Grid.Row="5"
-						   Maximum="100"
-						   Minimum="0"
-						   Margin="10,0"
-						   Value="{Binding Bulb.Brightness}"
-						   FormatString="P"
-						   Increment="0.01" />
-
-		<xctk:IntegerUpDown x:Name="kelvinUpDown"
-							Grid.Column="1"
-							Grid.Row="6"
-							Maximum="9000"
-							Minimum="2500"
-							Grid.ColumnSpan="2"
-							Margin="10,0"
-							Value="{Binding Bulb.Kelvin}"
-							FormatString="N"
-							Increment="100" />
-	</Grid>
+			<xctk:IntegerUpDown x:Name="kelvinUpDown"
+								Maximum="9000"
+								Minimum="2500"
+								Margin="10,0"
+								Value="{Binding Bulb.Kelvin}"
+								FormatString="N"
+								Increment="10" />
+		</StackPanel>
+		<StackPanel Orientation="Horizontal">
+			<xctk:IntegerUpDown x:Name="durationUpDown"
+								Minimum="10"
+								Margin="10,0"
+								Value="{Binding Bulb.Dim}"
+								FormatString="N"
+								Increment="10" />
+			<Button Content="Set Light Color"
+					Command="{Binding SetLightColorCommand}"
+					Margin="10,0" />
+		</StackPanel>
+	</StackPanel>
 </UserControl>

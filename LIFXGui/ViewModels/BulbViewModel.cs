@@ -55,5 +55,28 @@ namespace LIFXGui.ViewModels
 				});
 			}
 		}
+
+		public ICommand SetLabelCommand
+		{
+			get
+			{
+				return new RelayCommand(() => _controller.SetLabel(Bulb, Bulb.Label));
+			}
+		}
+
+		public ICommand SetLightColorCommand
+		{
+			get
+			{
+				return new RelayCommand(() =>
+				{
+					var hue = (ushort)(Bulb.Hue / 360 * 65535);
+					var saturation = (ushort)(Bulb.Saturation / 100 * 65535);
+					var brigtness = (ushort)(Bulb.Brightness / 100 * 65535);
+
+					_controller.SetLightState(Bulb, hue, saturation, brigtness, Bulb.Kelvin, Bulb.Dim);
+				});
+			}
+		}
 	}
 }

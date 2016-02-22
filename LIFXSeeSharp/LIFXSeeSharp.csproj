@@ -17,7 +17,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -69,7 +69,7 @@
     <Compile Include="Bulb\IBulb.cs" />
     <Compile Include="Extensions\Uint16Extensions.cs" />
     <Compile Include="Helpers\PacketSize.cs" />
-    <Compile Include="Bulb\LIFXBulb.cs" />
+    <Compile Include="Bulb\LifxBulb.cs" />
     <Compile Include="LifxController.cs" />
     <Compile Include="Log\Log.cs" />
     <Compile Include="NativeMethods.cs" />

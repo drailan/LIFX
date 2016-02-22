@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text;
 using System.Threading;
 
 // Hue => 0,360
@@ -121,7 +122,6 @@ namespace LifxSeeSharp
 
 		public void RunInitialDiscovery()
 		{
-
 			if (Bulbs == null)
 			{
 				Bulbs = new List<LifxBulb>();
@@ -151,24 +151,32 @@ namespace LifxSeeSharp
 			});
 		}
 
-		public void SetLabel(IBulb bulb, string label)
+		public void SetLabel(IBulb target, string label)
 		{
-			var b = bulb as LifxBulb;
+			var b = target as LifxBulb;
 
 			if (b != null)
 			{
+				var labelBytes = Encoding.UTF8.GetBytes(label);
+
 				var data = new byte[PacketSize.SET_LABEL];
 				var seq = SequenceGenerator.Next;
-				NativeMethods.SetLabelPacket(b.SiteAddress, b.Mac, seq, label, data);
+				NativeMethods.SetLabelPacket(
+					b.SiteAddress,
+					b.Mac,
+					seq,
+					labelBytes,
+					Math.Min((uint)labelBytes.Length, 32),
+					data);
 
 				_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, b));
 				_networkManager.SendTargetedPacket(data, seq, b.IP);
 			}
 		}
 
-		public void GetLightState(IBulb bulb)
+		public void GetLightState(IBulb target)
 		{
-			var b = bulb as LifxBulb;
+			var b = target as LifxBulb;
 			if (b != null)
 			{
 				var data = new byte[PacketSize.GET_LIGHT_STATE];
@@ -180,12 +188,26 @@ namespace LifxSeeSharp
 			}
 		}
 
-		public void SetPower(IBulb bulb, ushort power)
+		public void SetLightState(IBulb target, ushort h, ushort s, ushort b, ushort k, uint d)
+		{
+			var bulb = target as LifxBulb;
+			if (bulb != null)
+			{
+				var data = new byte[PacketSize.SET_LIGHT_STATE];
+				var seq = SequenceGenerator.Next;
+				NativeMethods.SetLightColorPacket(bulb.SiteAddress, bulb.Mac, seq, h, s, b, k, d, data);
+
+				_sentPackets.Add(new KeyValuePair<byte, LifxBulb>(seq, bulb));
+				_networkManager.SendTargetedPacket(data, seq, bulb.IP);
+			}
+		}
+
+		public void SetPower(IBulb target, ushort power)
 		{
 			var data = new byte[PacketSize.SET_POWER];
 			var seq = SequenceGenerator.Next;
 
-			var b = bulb as LifxBulb;
+			var b = target as LifxBulb;
 			if (b != null)
 			{
 				NativeMethods.SetPowerPacket(b.SiteAddress, b.Mac, seq, power, data);

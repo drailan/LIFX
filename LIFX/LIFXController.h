@@ -34,7 +34,6 @@ namespace LIFX
 		uint64_t timestamp : 64; // timestamp
 		uint16_t type;
 	uint16_t:16;
-		/* variable length payload follows */
 	} lifx_header;
 #pragma pack(pop)
 
@@ -51,11 +50,11 @@ namespace LIFX
 		void GetGroupPacket(uint64_t, uint8_t, void*);
 
 		void SetPowerPacket(uint64_t, uint64_t, uint8_t, uint16_t, void*);
-		void SetLabelPacket(uint64_t, uint64_t, uint8_t, char*, void*);
-
-		void SetLightColor(const wchar_t*, uint16_t*);
+		void SetLabelPacket(uint64_t, uint64_t, uint8_t, const void*, uint8_t, void*);
+		void SetLightColorPacket(uint64_t, uint64_t, uint8_t, uint16_t, uint16_t, uint16_t, uint16_t, uint32_t, void*);
 
 	private:
-		static void FormMac(uint8_t*, uint64_t);
+		static void MacFromUint64_t(uint8_t*, uint64_t);
+		static void Uint16_tToCharArray(uint16_t, char*);
 	};
 }

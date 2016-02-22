@@ -4,6 +4,7 @@ using LifxSeeSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace LIFXGui.ViewModels
@@ -72,7 +73,10 @@ namespace LIFXGui.ViewModels
 			get
 			{
 				return new RelayCommand
-					(() => _controller.GetLightStates(),
+					(async () =>
+					{
+						await Task.Run(() => _controller.GetLightStates());
+					},
 					() => { return IsInitialized; });
 			}
 		}
