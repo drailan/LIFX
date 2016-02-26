@@ -21,10 +21,16 @@ using System.Threading;
 
 namespace LifxSeeSharp
 {
+	/// <summary>
+	/// Controller class, library entry point
+	/// </summary>
 	public sealed class LifxController : IDisposable
 	{
 		private readonly string TAG = "LIFXController";
 
+		/// <summary>
+		/// Contains the bulb collection
+		/// </summary>
 		public List<LifxBulb> Bulbs { get; private set; }
 
 		private NetworkManager _networkManager;
@@ -38,6 +44,9 @@ namespace LifxSeeSharp
 		CancellationToken _ct;
 		CancellationTokenSource _cts;
 
+		/// <summary>
+		/// Initialize the Lifx controller, reponsible for working with light bulbs
+		/// </summary>
 		public LifxController()
 		{
 			_networkManager = new NetworkManager();
@@ -115,11 +124,18 @@ namespace LifxSeeSharp
 			_ct);
 		}
 
+		/// <summary>
+		/// Subscribe to bulb discovery subject
+		/// </summary>
+		/// <returns></returns>
 		public IObservable<LifxBulb> ObserveBulbDiscovery()
 		{
 			return _discoverySubject;
 		}
 
+		/// <summary>
+		/// Discover light bulbs on the lan
+		/// </summary>
 		public void RunInitialDiscovery()
 		{
 			if (Bulbs == null)
@@ -136,6 +152,9 @@ namespace LifxSeeSharp
 			_networkManager.Discover(data, seq);
 		}
 
+		/// <summary>
+		/// Query every bulb for its light state
+		/// </summary>
 		public void GetLightStates()
 		{
 			Bulbs.ForEach(b =>
@@ -151,6 +170,11 @@ namespace LifxSeeSharp
 			});
 		}
 
+		/// <summary>
+		/// Set the label for the target bulb
+		/// </summary>
+		/// <param name="target">Target bulb</param>
+		/// <param name="label">label string, will be truncated to 32 bytes</param>
 		public void SetLabel(IBulb target, string label)
 		{
 			var b = target as LifxBulb;
@@ -174,6 +198,10 @@ namespace LifxSeeSharp
 			}
 		}
 
+		/// <summary>
+		/// Request the light state for the target bulb
+		/// </summary>
+		/// <param name="target">Target bulb</param>
 		public void GetLightState(IBulb target)
 		{
 			var b = target as LifxBulb;
@@ -188,6 +216,15 @@ namespace LifxSeeSharp
 			}
 		}
 
+		/// <summary>
+		/// Set the light state fo the bulb
+		/// </summary>
+		/// <param name="target">Target bulb</param>
+		/// <param name="h">Hue, range from 0 to 360</param>
+		/// <param name="s">Saturation, 0 to 100</param>
+		/// <param name="b">Brightness, 0 to 100</param>
+		/// <param name="k">Kelvin, 2500 to 9000</param>
+		/// <param name="d">Dim, color transition in milliseconds</param>
 		public void SetLightState(IBulb target, ushort h, ushort s, ushort b, ushort k, uint d)
 		{
 			var bulb = target as LifxBulb;
@@ -202,6 +239,11 @@ namespace LifxSeeSharp
 			}
 		}
 
+		/// <summary>
+		/// Set the bulb power
+		/// </summary>
+		/// <param name="target">The target bulb</param>
+		/// <param name="power">Power, 0 off, 0xFFFF on</param>
 		public void SetPower(IBulb target, ushort power)
 		{
 			var data = new byte[PacketSize.SET_POWER];
@@ -217,6 +259,9 @@ namespace LifxSeeSharp
 			}
 		}
 
+		/// <summary>
+		/// Dispose
+		/// </summary>
 		public void Dispose()
 		{
 			if (Bulbs != null)

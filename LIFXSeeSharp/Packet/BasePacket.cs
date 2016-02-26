@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LifxSeeSharp.Packet
 {
-	public class BasePacket : IPacket
+	internal class BasePacket : IPacket
 	{
 		public virtual byte PacketType { get { return 0x0; } }
 		public IPAddress IP { get; private set; }

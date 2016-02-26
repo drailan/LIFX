@@ -2,7 +2,7 @@
 
 namespace LifxSeeSharp.Packet
 {
-	public interface IPacket
+	internal interface IPacket
 	{
 		byte Sequence { get; }
 		void ProcessBulb(IBulb bulb);

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace LifxSeeSharp.Bulb
 {
+	/// <summary>
+	/// The bulb object
+	/// </summary>
 	public class LifxBulb : IBulb, INotifyPropertyChanged
 	{
 		private ulong _mac;
@@ -21,7 +24,7 @@ namespace LifxSeeSharp.Bulb
 		private ushort _power;
 
 		public event PropertyChangedEventHandler PropertyChanged;
-		protected void NotifyPropertyChanged(string propertyName)
+		private void NotifyPropertyChanged(string propertyName)
 		{
 			var h = PropertyChanged;
 			if (h != null)

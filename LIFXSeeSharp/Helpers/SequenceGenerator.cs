@@ -2,7 +2,7 @@
 
 namespace LifxSeeSharp.Helpers
 {
-	public static class SequenceGenerator
+	internal static class SequenceGenerator
 	{
 		private const byte _max = Byte.MaxValue;
 		private static byte _current = 1;

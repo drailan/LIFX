@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LifxSeeSharp.Packet
 {
-	public class DiscoveryPacket : BasePacket
+	internal class DiscoveryPacket : BasePacket
 	{
 		public override byte PacketType { get { return 0x003; } }
 		public uint Port { get; private set; }

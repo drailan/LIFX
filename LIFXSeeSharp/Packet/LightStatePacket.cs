@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LifxSeeSharp.Packet
 {
-	public class LightStatePacket : BasePacket
+	internal class LightStatePacket : BasePacket
 	{
 		private readonly string TAG = "LightStatePacket";
 
